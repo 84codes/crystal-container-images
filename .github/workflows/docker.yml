@@ -51,8 +51,9 @@ jobs:
       os: ubuntu
     strategy:
       matrix:
-        - 20.04
-        - 18.04
+        os_version:
+          - 20.04
+          - 18.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
