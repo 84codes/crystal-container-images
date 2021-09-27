@@ -12,17 +12,14 @@ env:
   shards_version: 0.15.0
 
 jobs:
-  docker:
+  alpine:
     runs-on: ubuntu-latest
+    env:
+      os: alpine
     strategy:
       matrix:
-        include:
-          - os: ubuntu
-            os_version: 20.04
-          - os: ubuntu
-            os_version: 18.04
-          - os: alpine
-            os_version: latest
+        os_version:
+          - latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,17 +28,51 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ${{ matrix.os }}
+          context: ${{ env.os }}
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
             os_version=${{ matrix.os_version }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-${{ matrix.os }}-${{ matrix.os_version }}
+          tags: 84codes/crystal:${{ env.crystal_version }}-${{ env.os }}-${{ matrix.os_version }}
+          push: true
+
+  ubuntu:
+    needs: alpine
+    runs-on: ubuntu-latest
+    env:
+      os: ubuntu
+    strategy:
+      matrix:
+        - 20.04
+        - 18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ${{ env.os }}
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            shards_version=${{ env.shards_version }}
+            os_version=${{ matrix.os_version }}
+          tags: 84codes/crystal:${{ env.crystal_version }}-${{ env.os }}-${{ matrix.os_version }}
+          push: true
