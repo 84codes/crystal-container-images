@@ -41,5 +41,5 @@ jobs:
           build-args: |
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
-            os_version=${{ matix.os_version }}
+            os_version=${{ matrix.os_version }}
           tags: 84codes/crystal:${{ env.crystal_version }}-${{ matrix.os }}-${{ matrix.os_version }}
