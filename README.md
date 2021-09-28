@@ -2,6 +2,8 @@
 
 Multi architecture (amd64 and arm64 for now) container/docker image builder for the [Crystal compiler](https://crystal-lang.org/). The images are built using [GitHub actions](/.github/workflows/docker.yml).
 
+The images are published at https://hub.docker.com/r/84codes/crystal
+
 ## Supported OSes and versions
 
 - Alpine latest
@@ -80,5 +82,3 @@ RUN apt-get update && \
 COPY --from=builder /tmp/bin/* /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/myapp"]
 ```
-
-Fetch the built images at https://hub.docker.com/r/84codes/crystal
