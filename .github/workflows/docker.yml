@@ -42,7 +42,7 @@ jobs:
           tags: 84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
           push: true
 
-  ubuntu:
+  debian:
     needs: alpine
     runs-on: ubuntu-latest
     strategy:
@@ -71,7 +71,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ubuntu
+          context: debian
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
