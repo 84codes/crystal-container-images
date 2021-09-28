@@ -1,4 +1,4 @@
-ARG os_version=latest
+ARG alpine_version=latest
 
 FROM alpine:latest AS builder
 RUN apk add --update --no-cache crystal shards musl-dev llvm11-dev llvm11-static libxml2-dev zlib-static yaml-static g++ make wget
@@ -28,7 +28,7 @@ RUN wget https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_vers
   strip /usr/local/bin/shards && \
   cd .. && rm -r *
 
-FROM alpine:$os_version
+FROM alpine:$alpine_version
 COPY --from=builder /usr/local/bin/shards /usr/local/bin/
 COPY --from=builder /usr/local/bin/crystal /usr/local/bin/
 COPY --from=builder /usr/local/share/crystal /usr/local/share/crystal

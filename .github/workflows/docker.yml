@@ -14,11 +14,9 @@ env:
 jobs:
   alpine:
     runs-on: ubuntu-latest
-    env:
-      os: alpine
     strategy:
       matrix:
-        os_version:
+        alpine_version:
           - latest
     steps:
       - name: Checkout
@@ -35,25 +33,29 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ${{ env.os }}
+          context: alpine
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
-            os_version=${{ matrix.os_version }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-${{ env.os }}-${{ matrix.os_version }}
+            alpine_version=${{ matrix.alpine_version }}
+          tags: 84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
           push: true
 
   ubuntu:
     needs: alpine
     runs-on: ubuntu-latest
-    env:
-      os: ubuntu
     strategy:
       matrix:
-        os_version:
-          - 20.04
-          - 18.04
+        include:
+          - base_image: ubuntu
+            base_image_tag: 20.04
+          - base_image: ubuntu
+            base_image_tag: 18.08
+          - base_image: debian
+            base_image_tag: buster
+          - base_image: debian
+            base_image_tag: bullseye
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -69,11 +71,11 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ${{ env.os }}
+          context: ubuntu
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
-            shards_version=${{ env.shards_version }}
-            os_version=${{ matrix.os_version }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-${{ env.os }}-${{ matrix.os_version }}
+            base_image=${{ matrix.base_image }}
+            base_image_tag=${{ matrix.base_image_tag }}
+          tags: 84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           push: true
