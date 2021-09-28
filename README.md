@@ -4,19 +4,6 @@ Multi architecture (amd64 and arm64 for now) container/docker image builder for 
 
 The images are published at https://hub.docker.com/r/84codes/crystal
 
-## Supported OSes and versions
-
-- Alpine latest
-- Ubuntu 18.04
-- Ubuntu 20.04
-- others on request
-
-## Supported Crystal version(s)
-
-More versions are easily added, but currently images are build for these Crystal versions:
-
-- 1.1.1
-
 ## Usage
 
 Use these images when you want to build your Crystal app using a multi layer approach.
@@ -82,3 +69,18 @@ RUN apt-get update && \
 COPY --from=builder /tmp/bin/* /usr/local/bin/
 ENTRYPOINT ["/usr/local/bin/myapp"]
 ```
+
+## Supported OSes and versions
+
+- Alpine latest
+- Ubuntu 18.04
+- Ubuntu 20.04
+- Debian Buster
+- Debian Bullseye
+- others on request
+
+## Supported Crystal version(s)
+
+More versions are easily added, but currently images are build for these Crystal versions:
+
+- 1.1.1
