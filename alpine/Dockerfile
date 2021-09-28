@@ -14,6 +14,7 @@ RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_ver
   make crystal static=1 && \
   rm src/llvm/ext/llvm_ext.o && \
   cp .build/crystal /usr/local/bin/ && \
+  strip /usr/local/bin/crystal && \
   mkdir /usr/local/share/crystal && \
   cp -a src /usr/local/share/crystal/ && \
   cd .. && rm -r *
@@ -24,6 +25,7 @@ RUN wget https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_vers
   cd shards-${shards_version} && \
   make bin/shards static=1 && \
   cp bin/shards /usr/local/bin/ && \
+  strip /usr/local/bin/shards && \
   cd .. && rm -r *
 
 FROM alpine:$os_version
