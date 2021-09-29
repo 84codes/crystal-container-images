@@ -11,7 +11,7 @@ WORKDIR /tmp
 RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz && \
   tar zxf ${crystal_version}.tar.gz && \
   cd crystal-${crystal_version} && \
-  make crystal static=1 release=1 && \
+  make crystal static=1 && \
   rm src/llvm/ext/llvm_ext.o && \
   cp .build/crystal /usr/local/bin/ && \
   strip /usr/local/bin/crystal && \
@@ -23,7 +23,7 @@ ENV CRYSTAL_PATH=lib:/usr/local/share/crystal/src
 RUN wget https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz && \
   tar zxf v${shards_version}.tar.gz && \
   cd shards-${shards_version} && \
-  make bin/shards static=1 release=1 && \
+  make bin/shards static=1 && \
   cp bin/shards /usr/local/bin/ && \
   strip /usr/local/bin/shards && \
   cd .. && rm -r *
