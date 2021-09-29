@@ -32,5 +32,5 @@ FROM alpine:$alpine_version
 COPY --from=builder /usr/local/bin/shards /usr/local/bin/
 COPY --from=builder /usr/local/bin/crystal /usr/local/bin/
 COPY --from=builder /usr/local/share/crystal /usr/local/share/crystal
-RUN apk add --update --no-cache musl-dev gcc gc-dev pcre-dev libevent-dev libevent-static openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static
+RUN apk add --update --no-cache musl-dev gcc gc-dev pcre-dev libevent-dev libevent-static openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static git
 ENV CRYSTAL_PATH=lib:/usr/local/share/crystal/src
