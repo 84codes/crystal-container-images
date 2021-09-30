@@ -39,7 +39,10 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
             alpine_version=${{ matrix.alpine_version }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
+            84codes/crystal:${{ env.crystal_version }}-alpine
+            84codes/crystal:latest
           push: true
 
   debian:
