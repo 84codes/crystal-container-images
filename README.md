@@ -1,17 +1,17 @@
 # Crystal container images
 
-Multi architecture (amd64 and arm64 for now) container/docker image builder for the [Crystal compiler](https://crystal-lang.org/). The images are built using [GitHub actions](/.github/workflows/docker.yml).
+Multi-architecture (amd64 and arm64, more can be added) container/docker image builder for the [Crystal compiler](https://crystal-lang.org/). The images are built daily using [GitHub actions](/.github/workflows/docker.yml).
 
 The images are published at https://hub.docker.com/r/84codes/crystal
 
 ## Usage
 
-Use these images when you want to build your Crystal app using a multi layer approach.
+Use these images when you want to build your Crystal app, (pro tip: always use a multi stage approach).
 
 Smallest images are achieved with static compiled binaries added to a scratch image:
 
 ```Dockerfile
-# Compile in a build layer
+# Compile in a build stage
 FROM 84codes/crystal:1.1.1-alpine-latest as builder
 WORKDIR /tmp
 
@@ -25,7 +25,7 @@ COPY src/ src/
 # Build a static binary
 RUN shards build --release --production --static
 
-# Strip debug symbols for even smaller binary/image, but it will make stacktraces useless
+# Strip debug symbols for even smaller binary/image, but it will make printed stacktraces look empty
 RUN strip bin/*
 
 # The scratch image is completely empty
@@ -34,8 +34,11 @@ FROM scratch
 # Don't run as root
 USER 2:2
 
-# Copy the binary from the build image
+# Copy only the binary from the build stage
 COPY --from=builder /tmp/bin/* /
+
+# Install a CA store, only needed if the application verifies TLS peers (eg. talk to a https server)
+COPY --from=builder /etc/ssl/cert.pem /etc/ssl/
 
 ENTRYPOINT ["/myapp"]
 ```
@@ -55,9 +58,11 @@ COPY ./src ./src
 
 # Build
 RUN shards build --production --release
+
+# Strip if want a smaller image, but stacktraces won't be useful
 RUN strip bin/*
 
-# start from scratch and only copy the built binary
+# start from a clean ubuntu image
 FROM ubuntu:18.04
 
 # install required dependencies
@@ -66,7 +71,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/* /var/cache/debconf/* /var/log/*
 
+# copy the compiled binary from the build stage
 COPY --from=builder /tmp/bin/* /usr/local/bin/
+
 ENTRYPOINT ["/usr/local/bin/myapp"]
 ```
 
