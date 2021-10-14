@@ -8,8 +8,8 @@ on:
     - cron: '30 4 * * *' # every day at 4.30 am
 
 env:
-  crystal_version: 1.1.1
-  shards_version: 0.15.0
+  crystal_version: 1.2.0
+  shards_version: 0.16.0
 
 jobs:
   alpine:
