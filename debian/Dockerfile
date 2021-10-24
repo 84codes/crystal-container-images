@@ -1,6 +1,6 @@
-ARG base_image=ubuntu
-ARG base_image_tag=20.04
-ARG crystal_version=1.1.1
+ARG base_image=debian
+ARG base_image_tag=latest
+ARG crystal_version=1.2.1
 
 # Copy the statically compiled compiler from this image
 FROM 84codes/crystal:${crystal_version}-alpine-latest AS builder

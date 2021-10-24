@@ -6,8 +6,8 @@ WORKDIR /tmp
 # add dependencies required for building crystal from source
 RUN apk add --update --no-cache crystal shards musl-dev llvm10-dev llvm10-static libxml2-dev zlib-static yaml-static g++ make wget
 
-ARG crystal_version=1.1.1
-ARG shards_version=0.15.0
+ARG crystal_version=1.2.1
+ARG shards_version=0.16.0
 
 # download the crystal source, compile and install it
 RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz && \

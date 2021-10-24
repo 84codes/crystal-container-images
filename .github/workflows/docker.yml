@@ -42,7 +42,7 @@ jobs:
           tags: |
             84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
             84codes/crystal:${{ env.crystal_version }}-alpine
-            84codes/crystal:latest
+            84codes/crystal:latest-alpine
           push: true
 
   debian:
@@ -82,7 +82,9 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           push: true
 
   fedora:
@@ -116,5 +118,7 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
-          tags: 84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           push: true
