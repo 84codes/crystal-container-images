@@ -59,6 +59,8 @@ jobs:
             base_image_tag: buster
           - base_image: debian
             base_image_tag: bullseye
+          - base_image: debian
+            base_image_tag: latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
