@@ -53,12 +53,16 @@ jobs:
         include:
           - base_image: ubuntu
             base_image_tag: 20.04
+            base_image_tag_alias: focal
           - base_image: ubuntu
             base_image_tag: 18.04
+            base_image_tag_alias: bionic
           - base_image: debian
-            base_image_tag: buster
+            base_image_tag: 10
+            base_image_tag_alias: buster
           - base_image: debian
-            base_image_tag: bullseye
+            base_image_tag: 11
+            base_image_tag_alias: bullseye
           - base_image: debian
             base_image_tag: latest
     steps:
@@ -85,6 +89,8 @@ jobs:
           tags: |
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
+            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
           push: true
 
   fedora:
