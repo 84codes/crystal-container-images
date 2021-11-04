@@ -36,6 +36,7 @@ jobs:
           context: alpine
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
@@ -85,6 +86,7 @@ jobs:
           context: debian
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
@@ -127,6 +129,7 @@ jobs:
           context: fedora
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
