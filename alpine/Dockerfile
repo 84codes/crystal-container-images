@@ -4,7 +4,7 @@ FROM alpine:$alpine_version AS builder
 WORKDIR /tmp
 
 # add dependencies required for building crystal from source
-RUN apk add --update --no-cache crystal shards musl-dev llvm10-dev llvm10-static libxml2-dev zlib-static yaml-static g++ make wget git autoconf automake libtool
+RUN apk add --update --no-cache crystal shards musl-dev llvm11-dev llvm11-static libxml2-dev zlib-static yaml-static g++ make wget git autoconf automake libtool
 
 # Build libgc
 ARG gc_version=8.0.6
