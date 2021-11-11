@@ -3,11 +3,12 @@ ARG alpine_version=latest
 FROM alpine:$alpine_version AS builder
 WORKDIR /tmp
 
+ARG llvm_version=11
 # add dependencies required for building crystal from source
-RUN apk add --update --no-cache crystal shards musl-dev llvm11-dev llvm11-static libxml2-dev zlib-static yaml-static g++ make wget git autoconf automake libtool
+RUN apk add --update --no-cache crystal shards musl-dev llvm${llvm_version}-dev llvm${llvm_version}-static libxml2-dev zlib-static yaml-static g++ make wget git autoconf automake libtool
 
 # Build libgc
-ARG gc_version=8.0.6
+ARG gc_version=8.2.0
 RUN wget https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz && \
   tar zxf v${gc_version}.tar.gz && \
   cd bdwgc-${gc_version} && \
@@ -18,7 +19,7 @@ RUN wget https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz 
 ENV CRYSTAL_LIBRARY_PATH=/usr/local/lib
 
 # Build crystal
-ARG crystal_version=1.2.1
+ARG crystal_version=1.2.2
 RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz && \
   tar zxf ${crystal_version}.tar.gz && \
   cd crystal-${crystal_version} && \

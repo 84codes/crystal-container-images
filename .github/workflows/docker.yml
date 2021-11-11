@@ -10,6 +10,8 @@ on:
 env:
   crystal_version: 1.2.2
   shards_version: 0.16.0
+  gc_version: 8.2.0
+  llvm_version: 11
 
 jobs:
   alpine:
@@ -42,6 +44,8 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
             alpine_version=${{ matrix.alpine_version }}
+            gc_version=${{ env.gc_version }}
+            llvm_version=${{ env.llvm_version }}
           tags: |
             84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
             84codes/crystal:${{ env.crystal_version }}-alpine
@@ -90,6 +94,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
           tags: |
@@ -133,6 +138,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
           tags: |
