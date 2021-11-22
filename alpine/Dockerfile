@@ -23,7 +23,7 @@ ARG crystal_version=1.2.2
 RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz && \
   tar zxf ${crystal_version}.tar.gz && \
   cd crystal-${crystal_version} && \
-  make crystal static=1 release=1 && \
+  FLAGS=-Dwithout_playground make crystal static=1 release=1 && \
   rm src/llvm/ext/llvm_ext.o && \
   cp .build/crystal /usr/local/bin/ && \
   strip /usr/local/bin/crystal && \
