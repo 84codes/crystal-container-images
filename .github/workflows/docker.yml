@@ -50,6 +50,7 @@ jobs:
             84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
             84codes/crystal:${{ env.crystal_version }}-alpine
             84codes/crystal:latest-alpine
+            84codes/crystal:latest
           push: true
 
   debian:
@@ -70,8 +71,6 @@ jobs:
           - base_image: debian
             base_image_tag: 11
             base_image_tag_alias: bullseye
-          - base_image: debian
-            base_image_tag: latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -114,8 +113,6 @@ jobs:
             base_image_tag: 34
           - base_image: fedora
             base_image_tag: 35
-          - base_image: fedora
-            base_image_tag: latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
