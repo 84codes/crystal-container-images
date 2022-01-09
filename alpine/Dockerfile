@@ -5,7 +5,14 @@ WORKDIR /tmp
 
 ARG llvm_version=11
 # add dependencies required for building crystal from source
-RUN apk add --update --no-cache crystal shards musl-dev llvm${llvm_version}-dev llvm${llvm_version}-static libxml2-dev zlib-static yaml-static g++ make wget git autoconf automake libtool
+RUN apk add --update --no-cache \
+    crystal shards \
+    llvm${llvm_version}-dev llvm${llvm_version}-static \
+    zlib-static yaml-static libxml2-dev pcre-dev libevent-static \
+    libffi-dev \
+    git g++ make automake libtool autoconf wget
+
+ENV CFLAGS="-pipe -O3"
 
 # Build libgc
 ARG gc_version=8.2.0
@@ -19,7 +26,7 @@ RUN wget https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz 
 ENV CRYSTAL_LIBRARY_PATH=/usr/local/lib
 
 # Build crystal
-ARG crystal_version=1.2.2
+ARG crystal_version=1.3.0
 RUN wget https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz && \
   tar zxf ${crystal_version}.tar.gz && \
   cd crystal-${crystal_version} && \
