@@ -41,7 +41,10 @@ RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_ve
   make install
 # Link crystal
 WORKDIR /tmp/crystal
-COPY --from=builder /tmp/crystal/ .
+COPY --from=builder /tmp/crystal/Makefile .
+COPY --from=builder /tmp/crystal/src/llvm/ext src/llvm/ext
+COPY --from=builder /tmp/crystal/.build .build
+RUN rm src/llvm/ext/llvm_ext.o && make llvm_ext
 RUN sh -ex .build/crystal.sh
 # Link shards
 WORKDIR /tmp/shards
