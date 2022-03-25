@@ -15,13 +15,13 @@ ARG crystal_version=1.3.2
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   mkdir .build && \
-  make crystal static=1 target=$TARGETARCH-alpine-linux-musl FLAGS=-Dwithout_playground | tail -1 > .build/crystal.sh
+  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl FLAGS="--no-debug -Dwithout_playground" | tail -1 > .build/crystal.sh
 # Build shards
 WORKDIR /tmp/shards
 ARG shards_version=0.16.0
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
-  make bin/shards static=1 FLAGS="--cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh
+  make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
