@@ -21,6 +21,7 @@ RUN ./autogen.sh && \
 
 # Result image
 FROM $base_image:$base_image_tag
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y git build-essential pkg-config \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev && \
