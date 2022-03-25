@@ -1,12 +1,13 @@
 ARG base_image=debian
 ARG base_image_tag=latest
-ARG crystal_version=1.2.1
+ARG crystal_version=1.3.2
 
 # Copy the statically compiled compiler from this image
 FROM 84codes/crystal:${crystal_version}-alpine-latest AS alpine
 
 # Build libgc
 FROM $base_image:$base_image_tag AS libgc-builder
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gcc g++ make libc-dev autoconf automake libtool
 WORKDIR /tmp/libgc
