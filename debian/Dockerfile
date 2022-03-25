@@ -3,8 +3,7 @@ ARG base_image_tag=latest
 ARG crystal_version=1.2.1
 
 # Copy the statically compiled compiler from this image
-#FROM 84codes/crystal:${crystal_version}-alpine-latest AS alpine
-FROM crystal:alpine AS alpine
+FROM 84codes/crystal:${crystal_version}-alpine-latest AS alpine
 
 # Build libgc
 FROM $base_image:$base_image_tag AS libgc-builder
