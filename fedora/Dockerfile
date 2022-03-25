@@ -23,8 +23,7 @@ FROM $base_image:$base_image_tag
 RUN dnf install -y --nodocs \
         gcc make git libevent-devel \
         pcre-devel libxml2-devel libyaml-devel \
-        openssl-devel zlib-devel \
-        wget autoconf automake libtool && \
+        openssl-devel zlib-devel && \
     dnf clean all
 COPY --from=alpine /usr/local/bin/shards /usr/local/bin/
 COPY --from=alpine /usr/local/bin/crystal /usr/local/bin/
