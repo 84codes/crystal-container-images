@@ -15,7 +15,7 @@ ARG gc_version=8.2.0
 RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz | \
   tar -zxf- --strip-components=1
 RUN ./autogen.sh && \
-  ./configure --disable-debug --disable-shared --enable-large-config && \
+  ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
   make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -O3" && \
   make install
 
@@ -26,11 +26,13 @@ RUN apt-get update && \
     apt-get install -y git build-essential pkg-config \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/* /var/cache/debconf/* /var/log/*
-COPY --from=alpine /usr/local/bin/shards /usr/local/bin/
-COPY --from=alpine /usr/local/bin/crystal /usr/local/bin/
-COPY --from=alpine /usr/local/share/crystal /usr/local/share/crystal
-COPY --from=libgc-builder /usr/local/lib/libgc.a /usr/local/lib/
-ENV CRYSTAL_LIBRARY_PATH=/usr/local/lib
-ENV CRYSTAL_PATH=lib:/usr/local/share/crystal/src
+COPY --from=alpine /usr/bin/shards /usr/bin/
+COPY --from=alpine /usr/bin/crystal /usr/bin/
+COPY --from=alpine /usr/share/crystal /usr/share/crystal
+COPY --from=alpine /usr/share/doc/crystal /usr/share/doc/crystal
+COPY --from=alpine /usr/share/man/man1/crystal.1 /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man1/shards.1 /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man5/shard.yml.5 /usr/share/man/man5/
+COPY --from=libgc-builder /usr/lib/libgc.a /usr/lib/
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
-ENTRYPOINT ["/usr/local/bin/crystal"]
+ENTRYPOINT ["/usr/bin/crystal"]
