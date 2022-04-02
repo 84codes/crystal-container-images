@@ -1,0 +1,38 @@
+name: Debian packages
+on:
+  push:
+    paths:
+      - debian/Dockerfile
+      - debian/deb.sh
+      - .github/workflows/deb.yml
+
+jobs:
+  deb:
+    name: Build and upload deb packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build deb package
+        uses: docker/build-push-action@v2
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: debian
+          target: deb
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=1.3.2
+            deb_revision=${{ github.run_number }}
+          outputs: output
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: crystal_deb_packages
+          path: output
+      - name: Upload to Packagecloud
+        run: find output -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;

@@ -92,3 +92,16 @@ ENTRYPOINT ["/usr/local/bin/myapp"]
 More versions are easily added, but currently images are build for these Crystal versions:
 
 - 1.3.2
+
+## Deb packages
+
+Deb packages are also built for amd64 and arm64, and published at [https://packagecloud.io/84codes/crystal].
+
+### Install deb package
+
+```sh
+curl -fsSL https://packagecloud.io/84codes/crystal/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/84codes_crystal.gpg
+echo "deb https://packagecloud.io/84codes/crystal/any any main" > /etc/apt/sources.list.d/84codes_crystal.list
+apt-get update
+apt-get install crystal
+```
