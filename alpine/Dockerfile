@@ -17,7 +17,6 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   mkdir .build && \
   make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o && \
-  rm -r src/compiler
 # Build shards
 WORKDIR /tmp/shards
 ARG shards_version=0.16.0
