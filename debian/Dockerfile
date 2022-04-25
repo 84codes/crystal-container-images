@@ -44,7 +44,7 @@ COPY --from=deb-builder /tmp/*.deb .
 FROM $base_image:$base_image_tag
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y git build-essential pkg-config \
+    apt-get install -y git gcc g++ pkg-config make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev && \
     rm -rf /var/cache/apt/* /var/lib/apt/lists/* /var/cache/debconf/* /var/log/*
 COPY --from=alpine /usr/bin/shards /usr/bin/
