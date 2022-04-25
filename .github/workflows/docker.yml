@@ -11,7 +11,7 @@ on:
     - cron: '30 4 * * *' # every day at 4.30 am
 
 env:
-  crystal_version: 1.4.0
+  crystal_version: 1.4.1
   shards_version: 0.17.0
   gc_version: 8.2.0
   llvm_version: 12

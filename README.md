@@ -12,7 +12,7 @@ Smallest images are achieved with static compiled binaries added to a scratch im
 
 ```Dockerfile
 # Compile in a build stage
-FROM 84codes/crystal:1.3.2-alpine-latest as builder
+FROM 84codes/crystal:1.4.1-alpine-latest as builder
 WORKDIR /tmp
 
 # Copying and install dependencies
@@ -46,7 +46,7 @@ ENTRYPOINT ["/myapp"]
 Static compiled binaries are great, but glibc dynamically compiled images can perform better.
 
 ```Dockerfile
-FROM 84codes/crystal:1.3.2-ubuntu-18.04 AS builder
+FROM 84codes/crystal:1.4.1-ubuntu-18.04 AS builder
 WORKDIR /tmp
 
 # Copying and install dependencies
@@ -91,7 +91,7 @@ ENTRYPOINT ["/usr/local/bin/myapp"]
 
 More versions are easily added, but currently images are build for these Crystal versions:
 
-- 1.3.2
+- 1.4.1
 
 ## Deb packages
 

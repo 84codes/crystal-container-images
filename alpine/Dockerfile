@@ -11,7 +11,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.4.0
+ARG crystal_version=1.4.1
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   mkdir .build && \

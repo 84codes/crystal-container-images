@@ -26,7 +26,7 @@ jobs:
           target: deb
           platforms: linux/amd64,linux/arm64
           build-args: |
-            crystal_version=1.4.0
+            crystal_version=1.4.1
             deb_revision=${{ github.run_number }}
           outputs: output
       - name: Upload artifacts
