@@ -78,14 +78,15 @@ COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 RUN mkdir -p pkg/usr/lib && cp /usr/lib/libgc.a pkg/usr/lib/
 ARG crystal_version=1.4.1
-RUN fpm -s dir -t deb -n crystal -v ${crystal_version} -a native \
+ARG pkg_revision=1
+RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
   --deb-recommends libssl-dev --deb-recommends libz-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev --deb-recommends git \
   --license "Apache 2.0" --chdir pkg .
-RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} -a native \
+RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
