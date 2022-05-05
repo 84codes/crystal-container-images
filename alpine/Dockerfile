@@ -52,6 +52,49 @@ WORKDIR /tmp/shards
 COPY --from=builder /tmp/shards/bin bin
 RUN sh -ex bin/shards.sh && strip bin/shards
 
+# build deb and rpm packages
+FROM debian:11 AS pkg-builder
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y curl gcc g++ make libc-dev autoconf automake libtool ruby rpm binutils \
+    && gem install fpm
+# build libgc
+WORKDIR /tmp/libgc
+ARG gc_version=8.2.0
+RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz | \
+  tar -zxf- --strip-components=1
+RUN ./autogen.sh && \
+  ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
+  make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -O3" && \
+  make install
+# build distribution packages
+WORKDIR /tmp/pkg
+COPY --from=builder /tmp/crystal/*.md pkg/usr/share/doc/crystal/
+COPY --from=builder /tmp/crystal/man/crystal.1 pkg/usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shards.1 pkg/usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shard.yml.5 pkg/usr/share/man/man5/
+COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
+COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
+COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
+RUN mkdir -p pkg/usr/lib && cp /usr/lib/libgc.a pkg/usr/lib/
+ARG crystal_version=1.4.1
+RUN fpm -s dir -t deb -n crystal -v ${crystal_version} -a native \
+  --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
+  --description "a general-purpose, object-oriented programming language" \
+  --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
+  --deb-recommends libssl-dev --deb-recommends libz-dev --deb-recommends libxml2-dev \
+  --deb-recommends libgmp-dev --deb-recommends libyaml-dev --deb-recommends git \
+  --license "Apache 2.0" --chdir pkg .
+RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} -a native \
+  --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
+  --description "a general-purpose, object-oriented programming language" \
+  --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
+  --license "APL 2.0" --chdir pkg .
+
+# put .deb file in a scratch image for exporting
+FROM scratch AS pkgs
+COPY --from=pkg-builder /tmp/pkg/*.deb /tmp/pkg/*.rpm .
+
 # start from a clean image
 FROM alpine:$alpine_version
 # add dependencies commonly required for building crystal applications
