@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -20,19 +21,17 @@ jobs:
         alpine_version:
           - latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: alpine
           cache-from: type=gha
@@ -50,7 +49,7 @@ jobs:
             84codes/crystal:${{ env.crystal_version }}-alpine
             84codes/crystal:latest-alpine
             84codes/crystal:latest
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
 
   debian:
     name: Debian container
@@ -75,19 +74,17 @@ jobs:
             base_image_tag: 11
             base_image_tag_alias: bullseye
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: debian
           cache-from: type=gha
@@ -104,7 +101,7 @@ jobs:
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
 
   fedora:
     name: Fedora container
@@ -120,19 +117,17 @@ jobs:
           - base_image: fedora
             base_image_tag: 36
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: fedora
           cache-from: type=gha
@@ -147,34 +142,35 @@ jobs:
           tags: |
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
-          push: true
-  deb:
-    name: Debian package
-    needs: debian
+          push: ${{ github.ref == 'refs/heads/main' }}
+
+  pkgs:
+    name: Debian/rpm packages
+    needs: alpine
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Build deb package
-        uses: docker/build-push-action@v2
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - name: Build packages
+        uses: docker/build-push-action@v3
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          context: debian
-          target: deb
+          context: alpine
+          target: pkgs
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
-            deb_revision=${{ github.run_number }}
-          outputs: output
+            pkg_revision=${{ github.run_number }}
+          outputs: pkgs
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: crystal_deb_packages
-          path: output
-      - name: Upload to Packagecloud
-        run: find output -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+          name: crystal_packages
+          path: pkgs
+      - name: Upload deb package to Packagecloud
+        run: find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+        if: github.ref == 'refs/heads/main'
+      - name: Upload rpm package to Packagecloud
+        run: find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=227" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+        if: github.ref == 'refs/heads/main'
