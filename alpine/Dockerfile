@@ -90,6 +90,8 @@ RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
+  --depends libgmp-devel --depends libssl-devel --depends libxml2-devel \
+  --depends libyaml-devel --depends libz-devel \
   --license "APL 2.0" --chdir pkg .
 
 # put .deb file in a scratch image for exporting
