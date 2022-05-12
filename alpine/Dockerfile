@@ -14,6 +14,7 @@ WORKDIR /tmp/crystal
 ARG crystal_version=1.4.1
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
+  gzip -9 man/crystal.1 && \
   mkdir .build && \
   make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
@@ -22,6 +23,7 @@ WORKDIR /tmp/shards
 ARG shards_version=0.17.0
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
+  gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh
 
 # link on target platform
@@ -70,9 +72,9 @@ RUN ./autogen.sh && \
 # build distribution packages
 WORKDIR /tmp/pkg
 COPY --from=builder /tmp/crystal/*.md pkg/usr/share/doc/crystal/
-COPY --from=builder /tmp/crystal/man/crystal.1 pkg/usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shards.1 pkg/usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shard.yml.5 pkg/usr/share/man/man5/
+COPY --from=builder /tmp/crystal/man/crystal.1.gz pkg/usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shards.1.gz pkg/usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
@@ -104,9 +106,9 @@ FROM alpine:$alpine_version
 RUN apk add --update --no-cache musl-dev gcc pcre-dev libevent-dev libevent-static openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
-COPY --from=builder /tmp/crystal/man/crystal.1 /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shards.1 /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shard.yml.5 /usr/share/man/man5/
+COPY --from=builder /tmp/crystal/man/crystal.1.gz /usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shards.1.gz /usr/share/man/man1/
+COPY --from=builder /tmp/shards/man/shard.yml.5.gz /usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src /usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal /usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards /usr/bin/
