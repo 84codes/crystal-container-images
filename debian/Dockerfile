@@ -19,27 +19,6 @@ RUN ./autogen.sh && \
   make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -O3" && \
   make install
 
-# build debian package
-FROM $base_image:$base_image_tag AS deb-builder
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y binutils
-COPY --from=alpine /usr/bin/shards /usr/bin/
-COPY --from=alpine /usr/bin/crystal /usr/bin/
-COPY --from=alpine /usr/share/crystal /usr/share/crystal
-COPY --from=alpine /usr/share/doc/crystal /usr/share/doc/crystal
-COPY --from=alpine /usr/share/man/man1/crystal.1.gz /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man1/shards.1.gz /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
-COPY --from=libgc-builder /usr/lib/libgc.a /usr/lib/
-WORKDIR /tmp
-COPY deb.sh .
-ARG deb_revision=1
-RUN sh -eux deb.sh ${deb_revision}
-
-# put .deb file in a scratch image for exporting
-FROM scratch AS deb
-COPY --from=deb-builder /tmp/*.deb .
-
 # Result image
 FROM $base_image:$base_image_tag
 ARG DEBIAN_FRONTEND=noninteractive
