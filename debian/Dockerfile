@@ -27,9 +27,9 @@ COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
 COPY --from=alpine /usr/share/doc/crystal /usr/share/doc/crystal
-COPY --from=alpine /usr/share/man/man1/crystal.1 /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man1/shards.1 /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man5/shard.yml.5 /usr/share/man/man5/
+COPY --from=alpine /usr/share/man/man1/crystal.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man1/shards.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
 COPY --from=libgc-builder /usr/lib/libgc.a /usr/lib/
 WORKDIR /tmp
 COPY deb.sh .
@@ -51,9 +51,9 @@ COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
 COPY --from=alpine /usr/share/doc/crystal /usr/share/doc/crystal
-COPY --from=alpine /usr/share/man/man1/crystal.1 /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man1/shards.1 /usr/share/man/man1/
-COPY --from=alpine /usr/share/man/man5/shard.yml.5 /usr/share/man/man5/
+COPY --from=alpine /usr/share/man/man1/crystal.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man1/shards.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
 COPY --from=libgc-builder /usr/lib/libgc.a /usr/lib/
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]
