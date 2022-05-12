@@ -94,7 +94,7 @@ RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
-  --license "APL 2.0" --chdir pkg .
+  --license "ASL 2.0" --chdir pkg .
 
 # put .deb file in a scratch image for exporting
 FROM scratch AS pkgs
