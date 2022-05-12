@@ -54,14 +54,14 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
 
   pkgs:
-    name: Debian/rpm packages
+    name: Debian/RPM packages
     needs: alpine
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
-      - name: Build packages
+      - name: Build and push packages
         uses: docker/build-push-action@v3
         with:
           cache-from: type=gha
@@ -77,6 +77,20 @@ jobs:
             84codes/crystal:${{ env.crystal_version }}-pkgs
           push: ${{ github.ref == 'refs/heads/main' }}
           outputs: pkgs
+      - name: Export packages
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: pkgs
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            pkg_revision=${{ github.run_number }}
+          tags: |
+            84codes/crystal:latest-pkgs
+            84codes/crystal:${{ env.crystal_version }}-pkgs
+          outputs: pkgs
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -85,7 +99,7 @@ jobs:
       - name: Upload deb package to Packagecloud
         run: find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
         if: github.ref == 'refs/heads/main'
-      - name: Upload rpm package to Packagecloud
+      - name: Upload RPM package to Packagecloud
         run: find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=227" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
         if: github.ref == 'refs/heads/main'
 
