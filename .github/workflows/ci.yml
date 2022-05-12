@@ -76,7 +76,6 @@ jobs:
             84codes/crystal:latest-pkgs
             84codes/crystal:${{ env.crystal_version }}-pkgs
           push: ${{ github.ref == 'refs/heads/main' }}
-          outputs: pkgs
       - name: Export packages
         uses: docker/build-push-action@v3
         with:
