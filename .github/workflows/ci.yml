@@ -55,63 +55,9 @@ jobs:
             84codes/crystal:latest
           push: ${{ github.ref == 'refs/heads/main' }}
 
-  pkgs:
-    name: Debian/RPM packages
-    needs: alpine
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push packages
-        uses: docker/build-push-action@v3
-        with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: pkgs
-          pull: true
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            crystal_version=${{ env.crystal_version }}
-            pkg_revision=${{ github.run_number }}
-          tags: |
-            84codes/crystal:latest-pkgs
-            84codes/crystal:${{ env.crystal_version }}-pkgs
-          push: ${{ github.ref == 'refs/heads/main' }}
-      - name: Export packages
-        uses: docker/build-push-action@v3
-        with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: pkgs
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            crystal_version=${{ env.crystal_version }}
-            pkg_revision=${{ github.run_number }}
-          tags: |
-            84codes/crystal:latest-pkgs
-            84codes/crystal:${{ env.crystal_version }}-pkgs
-          outputs: pkgs
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: crystal_packages
-          path: pkgs
-      - name: Upload deb package to Packagecloud
-        run: find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
-        if: github.ref == 'refs/heads/main'
-      - name: Upload RPM package to Packagecloud
-        run: find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=227" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
-        if: github.ref == 'refs/heads/main'
-
   debian:
-    name: Debian container
-    needs: pkgs
+    name: Debian
+    needs: alpine
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -143,7 +89,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push container
         uses: docker/build-push-action@v3
         with:
           context: debian
@@ -162,10 +108,37 @@ jobs:
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
           push: ${{ github.ref == 'refs/heads/main' }}
+      - name: Export packages
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: debian
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            base_image=${{ matrix.base_image }}
+            base_image_tag=${{ matrix.base_image_tag }}
+            pkg_revision=${{ github.run_number }}
+          target: pkgs
+          outputs: pkgs
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          path: pkgs
+      - name: Upload to Packagecloud
+        run: |
+          set -eux
+          curl -fsSO -u "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json
+          DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
+          find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+        if: ${{ github.ref == 'refs/heads/main' }}
 
   fedora:
-    name: Fedora container
-    needs: pkgs
+    name: Fedora
+    needs: alpine
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -188,7 +161,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push container
         uses: docker/build-push-action@v3
         with:
           context: fedora
@@ -201,7 +174,33 @@ jobs:
             gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
+            pkg_revision=${{ github.run_number }}
           tags: |
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           push: ${{ github.ref == 'refs/heads/main' }}
+      - name: Export packages
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: fedora
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            base_image=${{ matrix.base_image }}
+            base_image_tag=${{ matrix.base_image_tag }}
+            pkg_revision=${{ github.run_number }}
+          target: pkgs
+          outputs: pkgs
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          path: pkgs
+      - name: Upload to Packagecloud
+        run: |
+          DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
+          find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+        if: ${{ github.ref == 'refs/heads/main' }}
