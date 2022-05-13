@@ -14,32 +14,23 @@ Smallest images are achieved with static compiled binaries added to a scratch im
 # Compile in a build stage
 FROM 84codes/crystal:1.4.1-alpine-latest as builder
 WORKDIR /tmp
-
 # Copying and install dependencies
 COPY shard.yml shard.lock ./
 RUN shards install --production
-
 # Copy the rest of the code
 COPY src/ src/
-
 # Build a static binary
-RUN shards build --release --production --static
-
-# Strip debug symbols for even smaller binary/image, but it will make printed stacktraces look empty
-RUN strip bin/*
+RUN shards build --release --production --static --no-debug
 
 # The scratch image is completely empty
 FROM scratch
-
 # Don't run as root
 USER 2:2
-
 # Copy only the binary from the build stage
 COPY --from=builder /tmp/bin/* /
-
 # Install a CA store, only needed if the application verifies TLS peers (eg. talk to a https server)
 COPY --from=builder /etc/ssl/cert.pem /etc/ssl/
-
+# Set default entrypoint
 ENTRYPOINT ["/myapp"]
 ```
 
@@ -93,15 +84,38 @@ More versions are easily added, but currently images are build for these Crystal
 
 - 1.4.1
 
-## Deb packages
+## Packages
 
-Deb packages are also built for amd64 and arm64, and published at [https://packagecloud.io/84codes/crystal].
+DEB and RPM packages are also built, both for amd64 and arm64, and published at https://packagecloud.io/84codes/crystal.
 
-### Install deb package
+The packages are built using the binaries from the alpine container and packaged up using [`fpm`](https://fpm.readthedocs.io/en/latest/index.html).
+
+The alpine image is built (multi-arch using buildx+qemu), then in the pkgs dockerfile the files from the alpine container are packaged up and copied to a scratch image, from which the packages are exported and then uploaded to packagecloud.
+
+For details please see:
+
+* [The GitHub workflow](.github/workflows/ci.yml)
+* [Alpine dockerfile](alpine/Dockerfile)
+* [Pkgs dockerfile](pkgs/Dockerfile)
+
+### Install DEB packages
 
 ```sh
-curl -fsSL https://packagecloud.io/84codes/crystal/gpgkey | gpg --dearmor > /etc/apt/trusted.gpg.d/84codes_crystal.gpg
-echo "deb https://packagecloud.io/84codes/crystal/any any main" > /etc/apt/sources.list.d/84codes_crystal.list
+curl -fsSL https://packagecloud.io/84codes/crystal/gpgkey | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/84codes_crystal.gpg
+echo deb https://packagecloud.io/84codes/crystal/any any main | sudo tee /etc/apt/sources.list.d/84codes_crystal.list
 apt-get update
 apt-get install crystal
+```
+
+### Install RPM packages
+
+```sh
+sudo tee /etc/yum.repos.d/84codes_crystal.repo << 'EOF'
+[84codes_crystal]
+name=84codes_crystal
+baseurl=https://packagecloud.io/84codes/crystal/rpm_any/rpm_any/$basearch
+gpgkey=https://packagecloud.io/84codes/crystal/gpgkey
+repo_gpgcheck=1
+EOF
+sudo dnf install crystal
 ```
