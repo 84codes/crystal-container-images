@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - README.md
 
 env:
   crystal_version: 1.4.1
@@ -203,4 +205,3 @@ jobs:
             84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
             84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           push: ${{ github.ref == 'refs/heads/main' }}
-
