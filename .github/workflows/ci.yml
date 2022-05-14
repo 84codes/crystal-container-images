@@ -133,6 +133,30 @@ jobs:
           DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
           find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
         if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Upload to cloudsmith
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: push
+          format: deb
+          owner: 84codes
+          repo: crystal
+          distro: ${{ matrix.base_image }}
+          release: ${{ matrix.base_image_tag }}
+          republish: true
+          file: pkgs/linux_amd64/crystal_${{ env.version }}-${{ github.run_number }}_amd64.deb
+      - name: Upload to cloudsmith
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: push
+          format: deb
+          owner: 84codes
+          repo: crystal
+          distro: ${{ matrix.base_image }}
+          release: ${{ matrix.base_image_tag }}
+          republish: true
+          file: pkgs/linux_arm64/crystal_${{ env.version }}-${{ github.run_number }}_arm64.deb
 
   fedora:
     name: Fedora
@@ -203,3 +227,27 @@ jobs:
           DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
           find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
         if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Upload to cloudsmith
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: push
+          format: rpm
+          owner: 84codes
+          repo: crystal
+          distro: ${{ matrix.base_image }}
+          release: ${{ matrix.base_image_tag }}
+          republish: true
+          file: pkgs/linux_amd64/crystal-${{ env.version }}-${{ github.run_number }}.x86_64.rpm
+      - name: Upload to cloudsmith
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: push
+          format: rpm
+          owner: 84codes
+          repo: crystal
+          distro: ${{ matrix.base_image }}
+          release: ${{ matrix.base_image_tag }}
+          republish: true
+          file: pkgs/linux_arm64/crystal-${{ env.version }}-${{ github.run_number }}.aarch64.rpm
