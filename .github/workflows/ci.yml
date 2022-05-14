@@ -144,7 +144,7 @@ jobs:
           distro: ${{ matrix.base_image }}
           release: ${{ matrix.base_image_tag }}
           republish: true
-          file: pkgs/linux_amd64/crystal_${{ env.version }}-${{ github.run_number }}_amd64.deb
+          file: pkgs/linux_amd64/crystal_${{ env.crystal_version }}-${{ github.run_number }}_amd64.deb
       - name: Upload to cloudsmith
         uses: cloudsmith-io/action@master
         with:
@@ -156,7 +156,7 @@ jobs:
           distro: ${{ matrix.base_image }}
           release: ${{ matrix.base_image_tag }}
           republish: true
-          file: pkgs/linux_arm64/crystal_${{ env.version }}-${{ github.run_number }}_arm64.deb
+          file: pkgs/linux_arm64/crystal_${{ env.crystal_version }}-${{ github.run_number }}_arm64.deb
 
   fedora:
     name: Fedora
@@ -238,7 +238,7 @@ jobs:
           distro: ${{ matrix.base_image }}
           release: ${{ matrix.base_image_tag }}
           republish: true
-          file: pkgs/linux_amd64/crystal-${{ env.version }}-${{ github.run_number }}.x86_64.rpm
+          file: pkgs/linux_amd64/crystal-${{ env.crystal_version }}-${{ github.run_number }}.x86_64.rpm
       - name: Upload to cloudsmith
         uses: cloudsmith-io/action@master
         with:
@@ -250,4 +250,4 @@ jobs:
           distro: ${{ matrix.base_image }}
           release: ${{ matrix.base_image_tag }}
           republish: true
-          file: pkgs/linux_arm64/crystal-${{ env.version }}-${{ github.run_number }}.aarch64.rpm
+          file: pkgs/linux_arm64/crystal-${{ env.crystal_version }}-${{ github.run_number }}.aarch64.rpm
