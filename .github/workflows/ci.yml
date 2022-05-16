@@ -225,7 +225,7 @@ jobs:
       - name: Upload to Packagecloud
         run: |
           set -euxo pipefail
-          DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
+          DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id")
           find pkgs -name "*.rpm" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
         #if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload to cloudsmith
