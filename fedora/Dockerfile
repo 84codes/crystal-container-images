@@ -85,7 +85,8 @@ COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/
 ARG crystal_version=1.4.1
 ARG pkg_revision=1
-RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
+ARG TARGETARCH
+RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
