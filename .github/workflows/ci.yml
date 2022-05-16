@@ -100,7 +100,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: crystal_packages
+          name: crystal-static-pkgs
           path: pkgs
       - name: Upload deb package to Packagecloud
         run: find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=35" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
@@ -178,7 +178,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
       - name: Upload to Packagecloud
         run: |
@@ -186,31 +186,7 @@ jobs:
           curl -fsSO -u "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json
           DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag_alias }}\").id" distributions.json)
           find pkgs -name "*.deb" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
-        #if: ${{ github.ref == 'refs/heads/main' }}
-      - name: Upload to cloudsmith
-        uses: cloudsmith-io/action@master
-        with:
-          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
-          command: push
-          format: deb
-          owner: 84codes
-          repo: crystal
-          distro: ${{ matrix.base_image }}
-          release: ${{ matrix.base_image_tag }}
-          republish: true
-          file: pkgs/linux_amd64/crystal_${{ env.crystal_version }}-${{ github.run_number }}_amd64.deb
-      - name: Upload to cloudsmith
-        uses: cloudsmith-io/action@master
-        with:
-          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
-          command: push
-          format: deb
-          owner: 84codes
-          repo: crystal
-          distro: ${{ matrix.base_image }}
-          release: ${{ matrix.base_image_tag }}
-          republish: true
-          file: pkgs/linux_arm64/crystal_${{ env.crystal_version }}-${{ github.run_number }}_arm64.deb
+        if: ${{ github.ref == 'refs/heads/main' }}
 
   fedora:
     name: Fedora
@@ -274,35 +250,11 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
       - name: Upload to Packagecloud
         run: |
           set -euxo pipefail
           DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id")
           find pkgs -name "*.rpm" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
-        #if: ${{ github.ref == 'refs/heads/main' }}
-      - name: Upload to cloudsmith
-        uses: cloudsmith-io/action@master
-        with:
-          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
-          command: push
-          format: rpm
-          owner: 84codes
-          repo: crystal
-          distro: ${{ matrix.base_image }}
-          release: ${{ matrix.base_image_tag }}
-          republish: true
-          file: pkgs/linux_amd64/crystal-${{ env.crystal_version }}-${{ github.run_number }}.x86_64.rpm
-      - name: Upload to cloudsmith
-        uses: cloudsmith-io/action@master
-        with:
-          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
-          command: push
-          format: rpm
-          owner: 84codes
-          repo: crystal
-          distro: ${{ matrix.base_image }}
-          release: ${{ matrix.base_image_tag }}
-          republish: true
-          file: pkgs/linux_arm64/crystal-${{ env.crystal_version }}-${{ github.run_number }}.aarch64.rpm
+        if: ${{ github.ref == 'refs/heads/main' }}
