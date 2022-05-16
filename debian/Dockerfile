@@ -66,7 +66,7 @@ COPY --from=builder /tmp/shards/bin bin
 RUN sh -ex bin/shards.sh && strip bin/shards
 
 # build deb package
-FROM debian:11 AS pkg-builder
+FROM --platform=$BUILDPLATFORM debian:11 AS pkg-builder
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y ruby binutils \
@@ -83,7 +83,8 @@ COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/
 ARG crystal_version=1.4.1
 ARG pkg_revision=1
-RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
+ARG TARGETARCH
+RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
