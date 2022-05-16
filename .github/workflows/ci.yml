@@ -128,10 +128,10 @@ jobs:
           path: pkgs
       - name: Upload to Packagecloud
         run: |
-          set -eux
+          set -euxo pipefail
           curl -fsSO -u "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json
-          DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
-          find pkgs -name "*.deb" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+          DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag_alias }}\").id" distributions.json)
+          find pkgs -name "*.deb" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
         #if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload to cloudsmith
         uses: cloudsmith-io/action@master
@@ -224,8 +224,9 @@ jobs:
           path: pkgs
       - name: Upload to Packagecloud
         run: |
+          set -euxo pipefail
           DIST_ID=$(curl -fsSu "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json | jq ".rpm[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag }}\").id" distributions.json)
-          find pkgs -name "*.rpm" -exec curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json \;
+          find pkgs -name "*.rpm" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
         #if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload to cloudsmith
         uses: cloudsmith-io/action@master
