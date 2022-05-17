@@ -99,7 +99,7 @@ FROM $base_image:$base_image_tag
 # add dependencies commonly required for building crystal applications
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y gcc llvm make git \
+    apt-get install -y gcc llvm make git pkg-config \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
