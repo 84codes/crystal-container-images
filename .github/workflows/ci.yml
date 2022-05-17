@@ -56,7 +56,7 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
 
   pkgs:
-    name: Debian/RPM packages
+    name: Debian/RPM static packages
     needs: alpine
     runs-on: ubuntu-latest
     steps:
@@ -111,7 +111,6 @@ jobs:
 
   debian:
     name: Debian
-    needs: alpine
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -190,7 +189,6 @@ jobs:
 
   fedora:
     name: Fedora
-    needs: alpine
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

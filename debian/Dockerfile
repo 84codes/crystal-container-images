@@ -3,7 +3,7 @@ ARG base_image_tag=latest
 ARG crystal_version=1.4.1
 
 # Copy the statically compiled compiler from this image
-FROM --platform=$BUILDPLATFORM 84codes/crystal:${crystal_version}-alpine AS alpine
+FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
 
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
 # add dependencies required for building crystal from source
