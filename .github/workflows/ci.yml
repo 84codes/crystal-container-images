@@ -9,7 +9,7 @@ on:
       - README.md
 
 env:
-  crystal_version: 1.4.1
+  crystal_version: 1.5.0
   shards_version: 0.17.0
   gc_version: 8.2.0
   llvm_version: 13
