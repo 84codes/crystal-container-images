@@ -1,7 +1,7 @@
 ARG alpine_version=latest
 
 FROM --platform=$BUILDPLATFORM alpine:edge AS builder
-ARG llvm_version=13
+ARG llvm_version=14
 # add dependencies required for building crystal from source
 RUN apk add --update --no-cache \
     crystal shards \
@@ -29,7 +29,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/
 
 # link on target platform
 FROM alpine:edge AS target-builder
-ARG llvm_version=13
+ARG llvm_version=14
 RUN apk add --update --no-cache \
     llvm${llvm_version}-dev llvm${llvm_version}-static \
     zlib-static yaml-static libxml2-dev pcre-dev libevent-static \
