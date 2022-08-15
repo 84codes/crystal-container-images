@@ -1,6 +1,6 @@
 ARG base_image=fedora
 ARG base_image_tag=latest
-ARG crystal_version=1.4.1
+ARG crystal_version=1.5.0
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -24,7 +24,7 @@ COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.4.1
+ARG crystal_version
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
@@ -83,7 +83,7 @@ COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/
-ARG crystal_version=1.4.1
+ARG crystal_version
 ARG pkg_revision=1
 ARG TARGETARCH
 RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
