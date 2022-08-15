@@ -1,16 +1,23 @@
 ARG base_image=debian
-ARG base_image_tag=latest
-ARG crystal_version=1.4.1
+ARG codename=bullseye
+ARG crystal_version=1.5.0
+ARG llvm_version=14
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
 
-FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
+FROM --platform=$BUILDPLATFORM $base_image:$codename AS builder
 # add dependencies required for building crystal from source
+ARG codename
+ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl llvm-dev libgc-dev gcc g++ pkg-config make \
+    apt-get install -y curl gnupg libgc-dev gcc g++ pkg-config make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev
+RUN curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
+    apt-get update && apt-get install -y llvm-$llvm_version-dev
+
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
@@ -18,7 +25,7 @@ COPY --from=alpine /usr/share/crystal /usr/share/crystal
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.4.1
+ARG crystal_version
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
@@ -34,12 +41,17 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/
   make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
 
 # link on target platform
-FROM $base_image:$base_image_tag AS target-builder
+FROM $base_image:$codename AS target-builder
+ARG codename
+ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl gcc g++ llvm-dev make \
+    apt-get install -y curl gnupg gcc g++ make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
     autoconf automake libtool
+RUN curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
+    apt-get update && apt-get install -y llvm-$llvm_version-dev
 # build libgc
 WORKDIR /tmp/libgc
 ARG gc_version=8.2.0
@@ -77,7 +89,7 @@ COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/
-ARG crystal_version=1.4.1
+ARG crystal_version
 ARG pkg_revision=1
 ARG TARGETARCH
 RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
@@ -95,12 +107,18 @@ FROM scratch AS pkgs
 COPY --from=pkg-builder /tmp/pkg/*.deb .
 
 # start from a clean image
-FROM $base_image:$base_image_tag
+FROM $base_image:$codename
+ARG codename
+ARG llvm_version
 # add dependencies commonly required for building crystal applications
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y gcc llvm make git pkg-config \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev
+    apt-get install -y curl gnupg gcc make git pkg-config \
+    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev && \
+    curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
+    apt-get update && apt-get install -y llvm-$llvm_version && \
+    rm -rf /var/lib/apt/lists/*
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
 COPY --from=builder /tmp/crystal/man/crystal.1.gz /usr/share/man/man1/

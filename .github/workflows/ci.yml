@@ -117,17 +117,25 @@ jobs:
       matrix:
         include:
           - base_image: ubuntu
-            base_image_tag: 22.04
-            base_image_tag_alias: jammy
+            version: 18.04
+            codename: bionic
+            llvm_version: 13
           - base_image: ubuntu
-            base_image_tag: 20.04
-            base_image_tag_alias: focal
+            version: 22.04
+            codename: jammy
+            llvm_version: 14
+          - base_image: ubuntu
+            version: 20.04
+            codename: focal
+            llvm_version: 14
           - base_image: debian
-            base_image_tag: 10
-            base_image_tag_alias: buster
+            version: 10
+            codename: buster
+            llvm_version: 14
           - base_image: debian
-            base_image_tag: 11
-            base_image_tag_alias: bullseye
+            version: 11
+            codename: bullseye
+            llvm_version: 14
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -152,12 +160,13 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
-            base_image_tag=${{ matrix.base_image_tag }}
+            codename=${{ matrix.codename }}
+            llvm_version=${{ matrix.llvm_version }}
           tags: |
-            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
-            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
-            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
-            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.base_image_tag_alias }}
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.version }}
+            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.version }}
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.codename }}
+            84codes/crystal:latest-${{ matrix.base_image }}-${{ matrix.codename }}
           push: ${{ github.ref == 'refs/heads/main' }}
       - name: Export packages
         uses: docker/build-push-action@v3
@@ -170,20 +179,20 @@ jobs:
             crystal_version=${{ env.crystal_version }}
             gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
-            base_image_tag=${{ matrix.base_image_tag }}
+            codename=${{ matrix.codename }}
             pkg_revision=${{ github.run_number }}
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
           path: pkgs
       - name: Upload to Packagecloud
         run: |
           set -euxo pipefail
           curl -fsSO -u "${{ secrets.packagecloud_token }}:" https://packagecloud.io/api/v1/distributions.json
-          DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.base_image_tag_alias }}\").id" distributions.json)
+          DIST_ID=$(jq ".deb[] | select(.index_name == \"${{ matrix.base_image }}\").versions[] | select(.index_name == \"${{ matrix.codename }}\").id" distributions.json)
           find pkgs -name "*.deb" | xargs -I{} curl -fsSu "${{ secrets.packagecloud_token }}:" -F "package[distro_version_id]=$DIST_ID" -F "package[package_file]=@{}" -XPOST https://packagecloud.io/api/v1/repos/84codes/crystal/packages.json
         if: ${{ github.ref == 'refs/heads/main' }}
 
