@@ -180,6 +180,7 @@ jobs:
             gc_version=${{ env.gc_version }}
             base_image=${{ matrix.base_image }}
             codename=${{ matrix.codename }}
+            llvm_version=${{ matrix.llvm_version }}
             pkg_revision=${{ github.run_number }}
           target: pkgs
           outputs: pkgs
