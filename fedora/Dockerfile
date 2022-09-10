@@ -49,7 +49,7 @@ RUN dnf install -y --nodocs \
     dnf clean all
 # build libgc
 WORKDIR /tmp/libgc
-ARG gc_version=8.2.0
+ARG gc_version=8.2.2
 RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   ./autogen.sh && \
