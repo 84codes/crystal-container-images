@@ -12,7 +12,7 @@ env:
   crystal_version: 1.5.1
   shards_version: 0.17.0
   gc_version: 8.2.2
-  llvm_version: 13
+  llvm_version: 14
 
 jobs:
   alpine:
