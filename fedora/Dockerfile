@@ -54,7 +54,7 @@ RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_ve
   tar -zxf- --strip-components=1 && \
   ./autogen.sh && \
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
-  make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIC -O3" && \
+  make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
   make install
 # Link crystal
 WORKDIR /tmp/crystal
