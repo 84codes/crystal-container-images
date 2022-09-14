@@ -47,7 +47,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc g++ make \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
+    libpcre3-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
     autoconf automake libtool
 RUN curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
@@ -61,6 +61,13 @@ RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_ve
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
   make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
   make install
+# build static libevent
+WORKDIR /tmp/libevent
+RUN curl -sL https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz | \
+  tar -zxf- --strip-components=1 && \
+  ./configure --prefix=/usr --enable-function-sections --disable-shared --disable-openssl --disable-dependency-tracking --disable-libevent-install --disable-debug-mode  --disable-samples && \
+  make -j$(nproc) CFLAGS="-pipe -fPIE -O3" && \
+  cp .libs/libevent.a .libs/libevent_pthreads.a /usr/lib/
 # Link crystal
 WORKDIR /tmp/crystal
 COPY --from=builder /tmp/crystal/Makefile .
@@ -88,14 +95,14 @@ COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
-COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/
+COPY --from=target-builder /usr/lib/libgc.a /usr/lib/libevent.a /usr/lib/libevent_pthreads.a pkg/usr/lib/
 ARG crystal_version
 ARG pkg_revision=1
 ARG TARGETARCH
 RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
-  --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
+  --depends gcc --depends libpcre3-dev --depends pkg-config \
   --depends llvm \
   --deb-recommends libssl-dev --deb-recommends libz-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev --deb-recommends git \
@@ -114,7 +121,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc make git pkg-config \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev && \
+    libpcre3-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev && \
     curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && apt-get install -y llvm-$llvm_version && \
@@ -127,6 +134,6 @@ COPY --from=builder /tmp/shards/man/shard.yml.5.gz /usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src /usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal /usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards /usr/bin/
-COPY --from=target-builder /usr/lib/libgc.a /usr/lib/
+COPY --from=target-builder /usr/lib/libgc.a /usr/lib/libevent.a /usr/lib/libevent_pthreads.a /usr/lib/
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]
