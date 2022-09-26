@@ -1,7 +1,7 @@
 ARG base_image=debian
 ARG codename=bullseye
-ARG crystal_version=1.5.0
-ARG llvm_version=14
+ARG crystal_version=1.5.1
+ARG llvm_version=13
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -13,10 +13,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg libgc-dev gcc g++ pkg-config make \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev
-RUN curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
-    apt-get update && apt-get install -y llvm-$llvm_version-dev
+    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev llvm-$llvm_version-dev
 
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
@@ -48,10 +45,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc g++ make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
-    autoconf automake libtool
-RUN curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
-    apt-get update && apt-get install -y llvm-$llvm_version-dev
+    autoconf automake libtool llvm-$llvm_version-dev
 # build libgc
 WORKDIR /tmp/libgc
 ARG gc_version=8.2.2
@@ -114,10 +108,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc make git pkg-config \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev && \
-    curl -s https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    echo "deb http://apt.llvm.org/$codename/ llvm-toolchain-$codename-$llvm_version main" > /etc/apt/sources.list.d/llvm.list && \
-    apt-get update && apt-get install -y llvm-$llvm_version && \
+    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev llvm-$llvm_version && \
     rm -rf /var/lib/apt/lists/*
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/

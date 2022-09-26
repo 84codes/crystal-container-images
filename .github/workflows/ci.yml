@@ -12,7 +12,6 @@ env:
   crystal_version: 1.5.1
   shards_version: 0.17.0
   gc_version: 8.2.2
-  llvm_version: 13
 
 jobs:
   alpine:
@@ -20,8 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        alpine_version:
-          - latest
+        include:
+          - alpine_version: latest
+            llvm_version: 13
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -45,9 +45,9 @@ jobs:
           build-args: |
             crystal_version=${{ env.crystal_version }}
             shards_version=${{ env.shards_version }}
-            alpine_version=${{ matrix.alpine_version }}
             gc_version=${{ env.gc_version }}
-            llvm_version=${{ env.llvm_version }}
+            llvm_version=${{ matrix.llvm_version }}
+            alpine_version=${{ matrix.alpine_version }}
           tags: |
             84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
             84codes/crystal:${{ env.crystal_version }}-alpine
@@ -117,25 +117,25 @@ jobs:
       matrix:
         include:
           - base_image: ubuntu
-            version: 18.04
-            codename: bionic
-            llvm_version: 13
-          - base_image: ubuntu
             version: 22.04
             codename: jammy
             llvm_version: 14
           - base_image: ubuntu
             version: 20.04
             codename: focal
-            llvm_version: 14
-          - base_image: debian
-            version: 10
-            codename: buster
-            llvm_version: 14
+            llvm_version: 12
+          - base_image: ubuntu
+            version: 18.04
+            codename: bionic
+            llvm_version: 10
           - base_image: debian
             version: 11
             codename: bullseye
-            llvm_version: 14
+            llvm_version: 13
+          - base_image: debian
+            version: 10
+            codename: buster
+            llvm_version: 13
     steps:
       - name: Checkout
         uses: actions/checkout@v3
