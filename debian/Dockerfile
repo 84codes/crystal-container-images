@@ -1,6 +1,6 @@
 ARG base_image=debian
 ARG codename=bullseye
-ARG crystal_version=1.5.1
+ARG crystal_version=1.6.0
 ARG llvm_version=13
 
 # Copy the statically compiled compiler from this image
@@ -12,7 +12,7 @@ ARG codename
 ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl gnupg libgc-dev gcc g++ pkg-config make \
+    apt-get install -y git curl gnupg libgc-dev gcc g++ pkg-config make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev llvm-$llvm_version-dev
 
 COPY --from=alpine /usr/bin/shards /usr/bin/
@@ -23,8 +23,7 @@ ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
 ARG crystal_version
-RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
-  tar -zxf- --strip-components=1 && \
+RUN git clone https://github.com/lbguilherme/crystal.git --branch feat/io_uring --single-branch . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
   make crystal target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--release --no-debug" | tail -1 > .build/crystal.sh && \
