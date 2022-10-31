@@ -23,7 +23,7 @@ ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
 ARG crystal_version
-RUN git clone https://github.com/lbguilherme/crystal.git --branch feat/io_uring --single-branch . && \
+RUN git clone https://github.com/lbguilherme/crystal.git --branch feat/io_uring --single-branch . &&\
   gzip -9 man/crystal.1 && \
   mkdir .build && \
   make crystal target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--release --no-debug" | tail -1 > .build/crystal.sh && \
