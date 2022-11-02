@@ -234,6 +234,7 @@ jobs:
           build-args: |
             crystal_version=${{ env.crystal_version }}
             gc_version=${{ env.gc_version }}
+            llvm_version=${{ matrix.llvm_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
             pkg_revision=${{ github.run_number }}
