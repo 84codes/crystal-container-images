@@ -210,6 +210,7 @@ jobs:
             base_image_tag: 36
           - base_image: fedora
             base_image_tag: 37
+            llvm_version: 14
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -233,6 +234,7 @@ jobs:
           build-args: |
             crystal_version=${{ env.crystal_version }}
             gc_version=${{ env.gc_version }}
+            llvm_version=${{ matrix.llvm_version }}
             base_image=${{ matrix.base_image }}
             base_image_tag=${{ matrix.base_image_tag }}
             pkg_revision=${{ github.run_number }}
