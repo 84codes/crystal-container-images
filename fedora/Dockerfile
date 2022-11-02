@@ -1,15 +1,16 @@
 ARG base_image=fedora
-ARG base_image_tag=latest
-ARG crystal_version=1.5.0
+ARG base_image_tag=36
+ARG crystal_version=1.6.1
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
 
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
+ARG llvm_version
 # add dependencies required for building crystal from source
 RUN dnf install -y --nodocs \
         gcc gcc-c++ make libevent-devel \
-        llvm-devel \
+        llvm${llvm_version}-devel \
         pcre-devel libxml2-devel libyaml-devel \
         zlib-devel gc-devel && \
     dnf clean all
@@ -41,9 +42,10 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/
 
 # link on target platform
 FROM $base_image:$base_image_tag AS target-builder
+ARG llvm_version
 RUN dnf install -y --nodocs \
         gcc gcc-c++ make libevent-devel \
-        llvm-devel \
+        llvm${llvm_version}-devel \
         pcre-devel libxml2-devel libyaml-devel \
         openssl-devel zlib-devel gmp-devel autoconf automake libtool && \
     dnf clean all
@@ -92,7 +94,7 @@ RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
-  --depends llvm-libs --depends libffi --depends zlib-devel \
+  --depends llvm${llvm_version}-libs --depends libffi --depends zlib-devel \
   --license "ASL 2.0" --chdir pkg .
 
 # put .rpm file in a scratch image for exporting
@@ -101,10 +103,11 @@ COPY --from=pkg-builder /tmp/pkg/*.rpm .
 
 # start from a clean image
 FROM $base_image:$base_image_tag
+ARG llvm_version
 # add dependencies commonly required for building crystal applications
 RUN dnf install -y --nodocs \
         gcc make git libevent-devel \
-        llvm-libs pcre-devel libxml2-devel libyaml-devel \
+        llvm${llvm_version}-libs pcre-devel libxml2-devel libyaml-devel \
         openssl-devel zlib-devel gmp-devel libffi && \
     dnf clean all
 # copy the binaries + stdlib + libgc from the build stage
