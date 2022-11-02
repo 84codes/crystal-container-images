@@ -38,8 +38,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: alpine
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=container-alpine-${{ matrix.alpine_version }}
+          cache-to: type=gha,mode=max,scope=container-alpine-${{ matrix.alpine_version }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -68,34 +68,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push packages
-        uses: docker/build-push-action@v3
-        with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: pkgs
-          pull: true
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            crystal_version=${{ env.crystal_version }}
-            pkg_revision=${{ github.run_number }}
-          tags: |
-            84codes/crystal:latest-pkgs
-            84codes/crystal:${{ env.crystal_version }}-pkgs
-          push: ${{ github.ref == 'refs/heads/main' }}
       - name: Export packages
         uses: docker/build-push-action@v3
         with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=static-pkgs
+          cache-to: type=gha,mode=max,scope=static-pkgs
           context: pkgs
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
             pkg_revision=${{ github.run_number }}
-          tags: |
-            84codes/crystal:latest-pkgs
-            84codes/crystal:${{ env.crystal_version }}-pkgs
           outputs: pkgs
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -152,8 +134,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: debian
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -171,8 +153,8 @@ jobs:
       - name: Export packages
         uses: docker/build-push-action@v3
         with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
           context: debian
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -227,8 +209,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: fedora
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -245,8 +227,8 @@ jobs:
       - name: Export packages
         uses: docker/build-push-action@v3
         with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           context: fedora
           platforms: linux/amd64,linux/arm64
           build-args: |
