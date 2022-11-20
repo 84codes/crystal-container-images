@@ -91,10 +91,10 @@ RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
-  --depends llvm-$llvm_version \
-  --deb-recommends libssl-dev --deb-recommends libz-dev --deb-recommends libxml2-dev \
-  --deb-recommends libgmp-dev --deb-recommends libyaml-dev --deb-recommends git \
-  --deb-recommends libffi-dev \
+  --depends llvm-$llvm_version --depends libz-dev \
+  --deb-recommends libssl-dev --deb-recommends libxml2-dev \
+  --deb-recommends libgmp-dev --deb-recommends libyaml-dev \
+  --deb-recommends git --deb-recommends libffi-dev \
   --license "Apache 2.0" --chdir pkg .
 
 # put .deb file in a scratch image for exporting
