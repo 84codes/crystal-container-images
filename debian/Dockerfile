@@ -1,6 +1,6 @@
 ARG base_image=debian
 ARG codename=bullseye
-ARG crystal_version=1.5.1
+ARG crystal_version=1.6.2
 ARG llvm_version=13
 
 # Copy the statically compiled compiler from this image

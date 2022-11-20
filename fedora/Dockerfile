@@ -1,6 +1,6 @@
 ARG base_image=fedora
-ARG base_image_tag=36
-ARG crystal_version=1.6.1
+ARG base_image_tag=37
+ARG crystal_version=1.6.2
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -34,7 +34,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
-ARG shards_version=0.17.0
+ARG shards_version=0.17.1
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \

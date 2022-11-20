@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.5.1
+ARG crystal_version=1.6.2
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
@@ -21,7 +21,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
-ARG shards_version=0.17.0
+ARG shards_version=0.17.1
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
