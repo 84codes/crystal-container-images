@@ -8,7 +8,7 @@ FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
 ARG llvm_version
 # add dependencies required for building crystal from source
-RUN dnf install -y --nodocs \
+RUN dnf install -y --nodocs --repo=fedora,updates \
         gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre-devel libxml2-devel libyaml-devel \
@@ -43,7 +43,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/
 # link on target platform
 FROM $base_image:$base_image_tag AS target-builder
 ARG llvm_version
-RUN dnf install -y --nodocs \
+RUN dnf install -y --nodocs --repo=fedora,updates \
         gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre-devel libxml2-devel libyaml-devel \
@@ -72,7 +72,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 
 # build rpm package
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS pkg-builder
-RUN dnf install -y --nodocs \
+RUN dnf install -y --nodocs --repo=fedora,updates \
     ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
 # build distribution packages
 WORKDIR /tmp/pkg
