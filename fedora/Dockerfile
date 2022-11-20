@@ -86,6 +86,7 @@ COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/
 ARG crystal_version
+ARG llvm_version
 ARG pkg_revision=1
 ARG TARGETARCH
 RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
@@ -94,7 +95,7 @@ RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
-  --depends llvm${llvm_version}-libs --depends libffi --depends zlib-devel \
+  --depends llvm${llvm_version}-libs --depends libffi \
   --license "ASL 2.0" --chdir pkg .
 
 # put .rpm file in a scratch image for exporting
