@@ -72,7 +72,7 @@ FROM --platform=$BUILDPLATFORM debian:11 AS pkg-builder
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y ruby binutils \
-    && gem install fpm
+    && gem install --no-document fpm
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stages
 COPY --from=builder /tmp/crystal/*.md pkg/usr/share/doc/crystal/

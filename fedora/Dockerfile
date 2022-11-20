@@ -73,7 +73,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 # build rpm package
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS pkg-builder
 RUN dnf install -y --nodocs \
-    ruby ruby-devel make gcc rpm-build && gem install fpm
+    ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
 # build distribution packages
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stage
