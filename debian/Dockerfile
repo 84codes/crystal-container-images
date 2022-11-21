@@ -103,22 +103,11 @@ COPY --from=pkg-builder /tmp/pkg/*.deb .
 
 # start from a clean image
 FROM $base_image:$codename
-ARG codename
-ARG llvm_version
 # add dependencies commonly required for building crystal applications
 ARG DEBIAN_FRONTEND=noninteractive
+COPY --from=pkg-builder /tmp/pkg/*.deb .
 RUN apt-get update && \
-    apt-get install -y curl gnupg gcc make git pkg-config \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev libffi-dev llvm-$llvm_version && \
-    rm -rf /var/lib/apt/lists/*
-# copy the binaries + stdlib + libgc from the build stage
-COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
-COPY --from=builder /tmp/crystal/man/crystal.1.gz /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shards.1.gz /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shard.yml.5.gz /usr/share/man/man5/
-COPY --from=builder /tmp/crystal/src /usr/share/crystal/src
-COPY --from=target-builder /tmp/crystal/.build/crystal /usr/bin/
-COPY --from=target-builder /tmp/shards/bin/shards /usr/bin/
-COPY --from=target-builder /usr/lib/libgc.a /usr/lib/
+    apt-get install -y curl gnupg make ./*.deb && \
+    rm -rf /var/lib/apt/lists/* ./*.deb
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]

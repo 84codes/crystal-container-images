@@ -104,21 +104,7 @@ COPY --from=pkg-builder /tmp/pkg/*.rpm .
 
 # start from a clean image
 FROM $base_image:$base_image_tag
-ARG llvm_version
-# add dependencies commonly required for building crystal applications
-RUN dnf install -y --nodocs \
-        gcc make git libevent-devel \
-        llvm${llvm_version}-libs pcre-devel libxml2-devel libyaml-devel \
-        openssl-devel zlib-devel gmp-devel libffi && \
-    dnf clean all
-# copy the binaries + stdlib + libgc from the build stage
-COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
-COPY --from=builder /tmp/crystal/man/crystal.1.gz /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shards.1.gz /usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shard.yml.5.gz /usr/share/man/man5/
-COPY --from=builder /tmp/crystal/src /usr/share/crystal/src
-COPY --from=target-builder /tmp/crystal/.build/crystal /usr/bin/
-COPY --from=target-builder /tmp/shards/bin/shards /usr/bin/
-COPY --from=target-builder /usr/lib64/libgc.a /usr/lib64/
+COPY --from=pkg-builder /tmp/pkg/*.rpm .
+RUN dnf install -y --nodocs --repo=fedora,updates git curl make ./*.rpm && dnf clean all && rm ./*.rpm
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]
