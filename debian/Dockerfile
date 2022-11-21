@@ -27,7 +27,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--release --no-debug" | tail -1 > .build/crystal.sh && \
+  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
@@ -45,7 +45,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc g++ make \
     libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
-    autoconf automake libtool llvm-$llvm_version-dev
+    autoconf automake libtool llvm-$llvm_version-dev libffi-dev
 # build libgc
 WORKDIR /tmp/libgc
 ARG gc_version=8.2.2
@@ -91,10 +91,10 @@ RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
-  --depends llvm-$llvm_version --depends libz-dev \
+  --depends llvm-$llvm_version --depends libz-dev --depends libffi-dev \
   --deb-recommends libssl-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev \
-  --deb-recommends git --deb-recommends libffi-dev \
+  --deb-recommends git \
   --license "Apache 2.0" --chdir pkg .
 
 # put .deb file in a scratch image for exporting
