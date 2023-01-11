@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           - alpine_version: latest
-            llvm_version: 13
+            llvm_version: 14
     steps:
       - name: Checkout
         uses: actions/checkout@v3
