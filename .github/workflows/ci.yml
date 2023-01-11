@@ -9,8 +9,8 @@ on:
       - README.md
 
 env:
-  crystal_version: 1.6.2
-  shards_version: 0.17.1
+  crystal_version: 1.7.0
+  shards_version: 0.17.2
   gc_version: 8.2.2
 
 jobs:
