@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.6.2
+ARG crystal_version=1.7.0
 RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
@@ -21,7 +21,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
-ARG shards_version=0.17.1
+ARG shards_version=0.17.2
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
@@ -29,10 +29,10 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
-ARG llvm_version=13
+ARG llvm_version=14
 RUN apk add --update --no-cache \
     llvm${llvm_version}-dev llvm${llvm_version}-static \
-    zlib-static yaml-static libxml2-dev pcre-dev libevent-static \
+    zlib-static yaml-static libxml2-static pcre-dev libevent-static \
     libffi-dev git g++ make automake libtool autoconf curl
 # Build libgc
 WORKDIR /tmp/libc
