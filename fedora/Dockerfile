@@ -30,7 +30,8 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
+  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu \
+    PREFIX=/usr FLAGS="--no-debug" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
@@ -84,7 +85,7 @@ COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
-COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/
+COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/crystal/
 ARG crystal_version
 ARG llvm_version
 ARG pkg_revision=1
