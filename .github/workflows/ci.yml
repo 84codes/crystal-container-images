@@ -9,7 +9,7 @@ on:
       - README.md
 
 env:
-  crystal_version: 1.7.2
+  crystal_version: 1.7.3
   shards_version: 0.17.2
   gc_version: 8.2.2
 
