@@ -17,7 +17,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal static=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" | tail -1 > .build/crystal.sh && \
+  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
@@ -25,7 +25,7 @@ ARG shards_version=0.17.2
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
-  make bin/shards static=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl -Duse_pcre2" | tail -1 > bin/shards.sh
+  make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl -Duse_pcre2" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
