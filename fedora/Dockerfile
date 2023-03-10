@@ -94,7 +94,7 @@ RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revisio
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pkgconfig --depends libevent-devel \
-  --depends pcre-devel ---depends pcre2-devel \
+  --depends pcre-devel --depends pcre2-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
   --depends llvm${llvm_version}-libs --depends libffi \
