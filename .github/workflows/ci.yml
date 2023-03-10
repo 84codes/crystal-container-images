@@ -194,11 +194,7 @@ jobs:
         uses: depot/build-push-action@v1
         with:
           project: zjh7v82xv6
-        uses: docker/build-push-action@v3
-        with:
           context: fedora
-          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
-          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
