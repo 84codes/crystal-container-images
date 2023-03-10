@@ -130,8 +130,6 @@ jobs:
         with:
           project: zjh7v82xv6
           context: debian
-          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
-          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
