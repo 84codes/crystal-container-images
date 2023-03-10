@@ -1,6 +1,6 @@
 ARG base_image=debian
 ARG codename=bullseye
-ARG crystal_version=1.6.2
+ARG crystal_version=1.7.3
 ARG llvm_version=13
 
 # Copy the statically compiled compiler from this image
@@ -13,7 +13,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg libgc-dev gcc g++ pkg-config make \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev llvm-$llvm_version-dev
+    libpcre2-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev llvm-$llvm_version-dev
 
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
@@ -27,7 +27,8 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   tar -zxf- --strip-components=1 && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
+  make crystal interpreter=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" \
+  CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib/crystal | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
@@ -35,7 +36,7 @@ ARG shards_version=0.17.0
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
-  make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
+  make bin/shards FLAGS="--no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu -Duse_pcre2" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM $base_image:$codename AS target-builder
@@ -44,7 +45,7 @@ ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl gnupg gcc g++ make \
-    libpcre3-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
+    libpcre2-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
     autoconf automake libtool llvm-$llvm_version-dev libffi-dev
 # build libgc
 WORKDIR /tmp/libgc
@@ -82,7 +83,8 @@ COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
 COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
 COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
-COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/
+COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/crystal/
+
 ARG crystal_version
 ARG pkg_revision=1
 ARG TARGETARCH
@@ -90,7 +92,8 @@ ARG llvm_version
 RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
-  --depends gcc --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
+  --depends gcc --depends pkg-config --depends libevent-dev \
+  --depends libpcre2-dev --depends libpcre3-dev \
   --depends llvm-$llvm_version --depends libz-dev --depends libffi-dev \
   --deb-recommends libssl-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev \
