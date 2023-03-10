@@ -1,6 +1,6 @@
 ARG base_image=fedora
 ARG base_image_tag=37
-ARG crystal_version=1.6.2
+ARG crystal_version=1.7.3
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -11,7 +11,7 @@ ARG llvm_version
 RUN dnf install -y --nodocs --repo=fedora,updates \
         gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
-        pcre-devel libxml2-devel libyaml-devel \
+        pcre2-devel libxml2-devel libyaml-devel \
         zlib-devel gc-devel && \
     dnf clean all
 COPY --from=alpine /usr/bin/shards /usr/bin/
@@ -31,7 +31,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
   gzip -9 man/crystal.1 && \
   mkdir .build && \
   make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu \
-    PREFIX=/usr FLAGS="--no-debug" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh && \
+    PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /tmp/shards
@@ -39,7 +39,7 @@ ARG shards_version=0.17.1
 RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
   tar -zxf- --strip-components=1 && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
-  make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
+  make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu -Duse_pcre2" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM $base_image:$base_image_tag AS target-builder
@@ -47,7 +47,7 @@ ARG llvm_version
 RUN dnf install -y --nodocs --repo=fedora,updates \
         gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
-        pcre-devel libxml2-devel libyaml-devel libffi-devel \
+        pcre2-devel libxml2-devel libyaml-devel libffi-devel \
         openssl-devel zlib-devel gmp-devel autoconf automake libtool && \
     dnf clean all
 # build libgc
@@ -93,7 +93,8 @@ ARG TARGETARCH
 RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a ${TARGETARCH} \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
-  --depends gcc --depends pcre-devel --depends pkgconfig --depends libevent-devel \
+  --depends gcc --depends pkgconfig --depends libevent-devel \
+  --depends pcre-devel --depends pcre2-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
   --depends llvm${llvm_version}-libs --depends libffi \
