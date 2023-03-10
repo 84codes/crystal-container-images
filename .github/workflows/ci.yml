@@ -184,11 +184,12 @@ jobs:
       matrix:
         include:
           - base_image: fedora
-            base_image_tag: 35
-          - base_image: fedora
             base_image_tag: 36
           - base_image: fedora
             base_image_tag: 37
+            llvm_version: 14
+          - base_image: fedora
+            base_image_tag: 38
             llvm_version: 14
     steps:
       - name: Checkout
