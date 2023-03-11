@@ -13,6 +13,10 @@ env:
   shards_version: 0.17.2
   gc_version: 8.2.2
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   alpine:
     name: Alpine container
