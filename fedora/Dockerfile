@@ -26,8 +26,7 @@ ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
 ARG crystal_version
-RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags/${crystal_version}.tar.gz | \
-  tar -zxf- --strip-components=1 && \
+RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
   make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu \
@@ -36,8 +35,7 @@ RUN curl --retry 5 -sL https://github.com/crystal-lang/crystal/archive/refs/tags
 # Build shards
 WORKDIR /tmp/shards
 ARG shards_version=0.17.2
-RUN curl --retry 5 -sL https://github.com/crystal-lang/shards/archive/refs/tags/v${shards_version}.tar.gz | \
-  tar -zxf- --strip-components=1 && \
+RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu -Duse_pcre2" | tail -1 > bin/shards.sh
 
@@ -53,8 +51,7 @@ RUN dnf install -y --nodocs --repo=fedora,updates \
 # build libgc
 WORKDIR /tmp/libgc
 ARG gc_version=8.2.2
-RUN curl --retry 5 -sL https://github.com/ivmai/bdwgc/archive/refs/tags/v${gc_version}.tar.gz | \
-  tar -zxf- --strip-components=1 && \
+RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
   ./autogen.sh && \
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
   make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
