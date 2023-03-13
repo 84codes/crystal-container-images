@@ -9,7 +9,7 @@ on:
       - README.md
 
 env:
-  crystal_version: 1.7.3
+  crystal_version: master
   shards_version: 0.17.2
   gc_version: 8.2.2
 
@@ -29,22 +29,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         if: ${{ github.ref == 'refs/heads/main' }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
+      - uses: depot/setup-action@v1
+      - uses: depot/build-push-action@v1
+        name: Build and push container
         with:
+          project: zjh7v82xv6
           context: alpine
-          cache-from: type=gha,scope=container-alpine-${{ matrix.alpine_version }}
-          cache-to: type=gha,mode=max,scope=container-alpine-${{ matrix.alpine_version }}
           pull: true
           platforms: linux/amd64,linux/arm64
           build-args: |
@@ -66,13 +62,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: docker/setup-qemu-action@v2
-      - uses: docker/setup-buildx-action@v2
-      - name: Export packages
-        uses: docker/build-push-action@v3
+      - uses: depot/setup-action@v1
+      - uses: depot/build-push-action@v1
+        name: Build and export static packages
         with:
-          cache-from: type=gha,scope=static-pkgs
-          cache-to: type=gha,mode=max,scope=static-pkgs
+          project: zjh7v82xv6
           context: pkgs
           platforms: linux/amd64,linux/arm64
           build-args: |
