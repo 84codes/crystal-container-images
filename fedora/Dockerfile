@@ -9,7 +9,7 @@ FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
 ARG llvm_version
 # add dependencies required for building crystal from source
 RUN dnf install -y --nodocs --repo=fedora,updates \
-        gcc gcc-c++ make libevent-devel \
+        git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel \
         zlib-devel gc-devel && \
@@ -43,7 +43,7 @@ RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://gith
 FROM $base_image:$base_image_tag AS target-builder
 ARG llvm_version
 RUN dnf install -y --nodocs --repo=fedora,updates \
-        gcc gcc-c++ make libevent-devel \
+        git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel libffi-devel \
         openssl-devel zlib-devel gmp-devel autoconf automake libtool && \

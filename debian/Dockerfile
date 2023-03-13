@@ -12,7 +12,7 @@ ARG codename
 ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl gnupg libgc-dev gcc g++ pkg-config make \
+    apt-get install -y git libgc-dev gcc g++ pkg-config make \
     libpcre2-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev llvm-$llvm_version-dev
 
 COPY --from=alpine /usr/bin/shards /usr/bin/
@@ -42,7 +42,7 @@ ARG codename
 ARG llvm_version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl gnupg gcc g++ make \
+    apt-get install -y git gcc g++ make \
     libpcre2-dev libevent-dev libssl-dev libgmp-dev libyaml-dev libxml2-dev zlib1g-dev \
     autoconf automake libtool llvm-$llvm_version-dev libffi-dev
 # build libgc
