@@ -55,7 +55,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 # start from a clean image
 FROM alpine:$alpine_version
 # add dependencies commonly required for building crystal applications
-RUN apk add --update --no-cache musl-dev gcc pcre-dev pcre2-dev libevent-dev libevent-static openssl1.1-compat-dev openssl1.1-compat-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev
+RUN apk add --update --no-cache musl-dev gcc pcre-dev pcre2-dev libevent-dev libevent-static openssl1.1-compat-dev openssl1.1-compat-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev libxml2-static
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /tmp/crystal/*.md /usr/share/doc/crystal/
 COPY --from=builder /tmp/crystal/man/crystal.1.gz /usr/share/man/man1/
