@@ -6,7 +6,7 @@ FROM 84codes/crystal:${crystal_version}-alpine-latest AS alpine
 FROM debian:11 AS pkg-builder
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y curl gcc g++ make libc-dev autoconf automake libtool ruby rpm binutils \
+    apt-get install -y git gcc g++ make libc-dev autoconf automake libtool ruby rpm binutils \
     && gem install fpm
 # build libgc
 WORKDIR /tmp/libgc
