@@ -10,8 +10,8 @@ on:
       - .github/workflows/master.yml
 
 env:
-  crystal_version: 1.7.3
-  shards_version: 0.17.2
+  crystal_version: 1.8.0
+  shards_version: 0.17.3
   gc_version: 8.2.2
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
       matrix:
         include:
           - alpine_version: latest
-            llvm_version: 14
+            llvm_version: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -94,7 +94,7 @@ jobs:
           - base_image: ubuntu
             version: 22.04
             codename: jammy
-            llvm_version: 14
+            llvm_version: 15
           - base_image: ubuntu
             version: 20.04
             codename: focal
@@ -184,10 +184,10 @@ jobs:
             base_image_tag: 36
           - base_image: fedora
             base_image_tag: 37
-            llvm_version: 14
+            llvm_version:
           - base_image: fedora
             base_image_tag: 38
-            llvm_version: 14
+            llvm_version: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v3
