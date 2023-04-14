@@ -39,6 +39,7 @@ jobs:
           context: alpine
           no-cache: true
           pull: true
+          push: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
@@ -121,6 +122,7 @@ jobs:
           cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
           cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
           pull: true
+          push: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
@@ -186,6 +188,7 @@ jobs:
           context: fedora
           no-cache: true
           pull: true
+          push: true
           platforms: linux/amd64,linux/arm64
           build-args: |
             crystal_version=${{ env.crystal_version }}
