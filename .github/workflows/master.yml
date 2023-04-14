@@ -1,0 +1,219 @@
+name: Master
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * *'
+
+env:
+  crystal_version: master
+  shards_version: master
+  gc_version: 8.2.2
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  alpine:
+    name: Alpine container
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - alpine_version: latest
+            llvm_version: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: depot/setup-action@v1
+      - uses: depot/build-push-action@v1
+        with:
+          project: zjh7v82xv6
+          context: alpine
+          no-cache: true
+          pull: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            shards_version=${{ env.shards_version }}
+            gc_version=${{ env.gc_version }}
+            llvm_version=${{ matrix.llvm_version }}
+            alpine_version=${{ matrix.alpine_version }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-alpine-${{ matrix.alpine_version }}
+            84codes/crystal:${{ env.crystal_version }}-alpine
+
+  pkgs:
+    name: Debian/RPM static packages
+    needs: alpine
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: depot/setup-action@v1
+      - uses: depot/build-push-action@v1
+        with:
+          project: zjh7v82xv6
+          context: pkgs
+          no-cache: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            pkg_revision=${{ github.run_number }}
+          outputs: pkgs
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: crystal-static-pkgs
+          path: pkgs
+
+  debian:
+    name: Debian
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - base_image: ubuntu
+            version: 22.04
+            codename: jammy
+            llvm_version: 15
+          - base_image: ubuntu
+            version: 20.04
+            codename: focal
+            llvm_version: 12
+          - base_image: ubuntu
+            version: 18.04
+            codename: bionic
+            llvm_version: 10
+          - base_image: debian
+            version: 11
+            codename: bullseye
+            llvm_version: 13
+          - base_image: debian
+            version: 10
+            codename: buster
+            llvm_version: 13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Build and push container
+        uses: docker/build-push-action@v3
+        with:
+          context: debian
+          no-cache: true
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          pull: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            base_image=${{ matrix.base_image }}
+            codename=${{ matrix.codename }}
+            llvm_version=${{ matrix.llvm_version }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.version }}
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.codename }}
+      - name: Export packages
+        uses: docker/build-push-action@v3
+        with:
+          cache-from: type=gha,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          cache-to: type=gha,mode=max,scope=container-${{ matrix.base_image }}-${{ matrix.version }}
+          context: debian
+          no-cache: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            base_image=${{ matrix.base_image }}
+            codename=${{ matrix.codename }}
+            llvm_version=${{ matrix.llvm_version }}
+            pkg_revision=${{ github.run_number }}
+          target: pkgs
+          outputs: pkgs
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
+          path: pkgs
+
+  fedora:
+    name: Fedora
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - base_image: fedora
+            base_image_tag: 36
+          - base_image: fedora
+            base_image_tag: 37
+            llvm_version:
+          - base_image: fedora
+            base_image_tag: 38
+            llvm_version:
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: depot/setup-action@v1
+      - uses: depot/build-push-action@v1
+        name: Build and push container
+        with:
+          project: zjh7v82xv6
+          context: fedora
+          no-cache: true
+          pull: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            llvm_version=${{ matrix.llvm_version }}
+            base_image=${{ matrix.base_image }}
+            base_image_tag=${{ matrix.base_image_tag }}
+            pkg_revision=${{ github.run_number }}
+          tags: |
+            84codes/crystal:${{ env.crystal_version }}-${{ matrix.base_image }}-${{ matrix.base_image_tag }}
+      - uses: depot/build-push-action@v1
+        name: Export packages
+        with:
+          project: zjh7v82xv6
+          context: fedora
+          no-cache: true
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            crystal_version=${{ env.crystal_version }}
+            gc_version=${{ env.gc_version }}
+            llvm_version=${{ matrix.llvm_version }}
+            base_image=${{ matrix.base_image }}
+            base_image_tag=${{ matrix.base_image_tag }}
+            pkg_revision=${{ github.run_number }}
+          target: pkgs
+          outputs: pkgs
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
+          path: pkgs
