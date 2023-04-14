@@ -7,6 +7,7 @@ on:
       - main
     paths-ignore:
       - README.md
+      - .github/workflows/master.yml
 
 env:
   crystal_version: 1.7.3
