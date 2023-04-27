@@ -3,7 +3,7 @@ ARG codename=focal
 ARG crystal_version=1.8.1
 
 # Copy the statically compiled compiler from this image
-FROM --platform=$BUILDPLATFORM 84codes/crystal:${crystal_version}-alpine AS alpine
+FROM 84codes/crystal:${crystal_version}-alpine AS alpine
 
 # link on target platform
 FROM $base_image:$codename AS target-builder
@@ -18,6 +18,9 @@ RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.c
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
   make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
   make install
+COPY --from=alpine /usr/bin/shards /usr/bin/
+COPY --from=alpine /usr/bin/crystal /usr/bin/
+COPY --from=alpine /usr/share/crystal /usr/share/crystal
 
 # build deb package
 FROM --platform=$BUILDPLATFORM debian:11 AS pkg-builder
@@ -28,9 +31,9 @@ RUN apt-get update && \
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stages
 COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/crystal/
-COPY --from=alpine /usr/bin/shards pkg/usr/bin/
-COPY --from=alpine /usr/bin/crystal pkg/usr/bin/
-COPY --from=alpine /usr/share/crystal pkg/usr/share/crystal
+COPY --from=target-builder /usr/bin/shards pkg/usr/bin/
+COPY --from=target-builder /usr/bin/crystal pkg/usr/bin/
+COPY --from=target-builder /usr/share/crystal pkg/usr/share/crystal
 
 ARG pkg_revision=1
 ARG TARGETARCH
