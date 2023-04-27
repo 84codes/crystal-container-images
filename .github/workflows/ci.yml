@@ -87,6 +87,7 @@ jobs:
   debian:
     name: Debian
     runs-on: ubuntu-latest
+    needs: alpine
     strategy:
       fail-fast: false
       matrix:
