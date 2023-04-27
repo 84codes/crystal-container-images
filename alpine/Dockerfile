@@ -1,7 +1,7 @@
 ARG alpine_version=latest
 
 FROM --platform=$BUILDPLATFORM alpine:$alpine_version AS builder
-ARG llvm_version=14
+ARG llvm_version=15
 # add dependencies required for building crystal from source
 RUN apk add --update --no-cache \
     crystal shards \
