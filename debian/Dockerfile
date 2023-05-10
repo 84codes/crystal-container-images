@@ -21,6 +21,10 @@ RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.c
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
+COPY --from=alpine /usr/share/doc/crystal /usr/share/doc/crystal
+COPY --from=alpine /usr/share/man/man1/crystal.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man1/shards.1.gz /usr/share/man/man1/
+COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
 
 # build deb package
 FROM --platform=$BUILDPLATFORM debian:11 AS pkg-builder
@@ -34,6 +38,10 @@ COPY --from=target-builder /usr/lib/libgc.a pkg/usr/lib/crystal/
 COPY --from=target-builder /usr/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/bin/crystal pkg/usr/bin/
 COPY --from=target-builder /usr/share/crystal pkg/usr/share/crystal
+COPY --from=target-builder /usr/share/doc/crystal pkg/usr/share/doc/crystal
+COPY --from=target-builder /usr/share/man/man1/crystal.1.gz pkg/usr/share/man/man1/
+COPY --from=target-builder /usr/share/man/man1/shards.1.gz pkg/usr/share/man/man1/
+COPY --from=target-builder /usr/share/man/man5/shard.yml.5.gz pkg/usr/share/man/man5/
 
 ARG pkg_revision=1
 ARG TARGETARCH
