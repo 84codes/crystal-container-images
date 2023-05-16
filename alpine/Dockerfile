@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /tmp/crystal
-ARG crystal_version=1.7.3
+ARG crystal_version=1.8.2
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
@@ -27,10 +27,10 @@ RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://gith
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
-ARG llvm_version=14
+ARG llvm_version=15
 RUN apk add --update --no-cache \
     llvm${llvm_version}-dev llvm${llvm_version}-static \
-    zlib-static yaml-static libxml2-static pcre-dev pcre2-dev libevent-static \
+    zstd-static zlib-static yaml-static libxml2-static pcre-dev pcre2-dev libevent-static \
     libffi-dev git g++ make automake libtool autoconf curl
 # Build libgc
 WORKDIR /tmp/libc
