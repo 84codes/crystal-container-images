@@ -94,6 +94,10 @@ jobs:
             codename: bionic
             llvm_version: 10
           - base_image: debian
+            version: 12
+            codename: bullseye
+            llvm_version: 15
+          - base_image: debian
             version: 11
             codename: bullseye
             llvm_version: 13
