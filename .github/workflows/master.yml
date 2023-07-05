@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - alpine_version: latest
-            llvm_version: 15
+            llvm_version: 16
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -174,7 +174,7 @@ jobs:
             llvm_version:
           - base_image: fedora
             base_image_tag: 38
-            llvm_version: 15
+            llvm_version:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
