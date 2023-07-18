@@ -1,5 +1,5 @@
-ARG base_image=fedora
-ARG base_image_tag=38
+ARG base_image=quay.io/centos/centos
+ARG base_image_tag=stream9
 ARG crystal_version=1.9.1
 
 # Copy the statically compiled compiler from this image
@@ -8,7 +8,7 @@ FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS builder
 ARG llvm_version
 # add dependencies required for building crystal from source
-RUN dnf install -y --nodocs --repo=fedora,updates \
+RUN dnf install -y --nodocs --enablerepo=crb \
         git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel \
@@ -42,7 +42,7 @@ RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://gith
 # link on target platform
 FROM $base_image:$base_image_tag AS target-builder
 ARG llvm_version
-RUN dnf install -y --nodocs --repo=fedora,updates \
+RUN dnf install -y --nodocs --enablerepo=crb \
         git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel libffi-devel \
@@ -70,7 +70,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 
 # build rpm package
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS pkg-builder
-RUN dnf install -y --nodocs --repo=fedora,updates \
+RUN dnf install -y --nodocs \
     ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
 # build distribution packages
 WORKDIR /tmp/pkg
@@ -103,6 +103,7 @@ COPY --from=pkg-builder /tmp/pkg/*.rpm .
 # start from a clean image
 FROM $base_image:$base_image_tag
 COPY --from=pkg-builder /tmp/pkg/*.rpm .
-RUN dnf install -y --nodocs --repo=fedora,updates git curl make ./*.rpm && dnf clean all && rm ./*.rpm
+RUN dnf install -y --nodocs 'dnf-command(config-manager)' && dnf config-manager --set-enabled crb
+RUN dnf install -y --nodocs git make ./*.rpm && dnf clean all && rm ./*.rpm
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]
