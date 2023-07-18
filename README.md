@@ -2,7 +2,7 @@
 
 Multi-architecture (amd64 and arm64) container image and DEB/RPM package builder for the [Crystal compiler](https://crystal-lang.org/). The images are built daily using [GitHub actions](/.github/workflows/docker.yml).
 
-The container images are published at https://hub.docker.com/r/84codes/crystal and the packages at https://packagecloud.com/84codes/crystal
+The container images are published at https://hub.docker.com/r/84codes/crystal and the packages at https://packagecloud.io/84codes/crystal
 
 ## Usage
 
