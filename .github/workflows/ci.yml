@@ -351,7 +351,9 @@ jobs:
             pkg_revision=${{ github.run_number }}
           tags: |
             84codes/crystal:${{ env.crystal_version }}-centos-${{ matrix.base_image_tag }}
+            84codes/crystal:${{ env.crystal_version }}-el-${{ matrix.el_version }}
             84codes/crystal:latest-centos-${{ matrix.base_image_tag }}
+            84codes/crystal:latest-el-${{ matrix.el_version }}
           push: ${{ github.ref == 'refs/heads/main' }}
       - uses: depot/build-push-action@v1
         name: Export packages
