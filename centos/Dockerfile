@@ -103,7 +103,6 @@ COPY --from=pkg-builder /tmp/pkg/*.rpm .
 # start from a clean image
 FROM $base_image:$base_image_tag
 COPY --from=pkg-builder /tmp/pkg/*.rpm .
-RUN dnf install -y --nodocs 'dnf-command(config-manager)' && dnf config-manager --set-enabled crb
 RUN dnf install -y --nodocs git make ./*.rpm && dnf clean all && rm ./*.rpm
 # set the default cmd, example usage: docker run --rm 84codes/crystal eval 'puts "hello world"'
 ENTRYPOINT ["/usr/bin/crystal"]
