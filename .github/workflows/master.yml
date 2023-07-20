@@ -85,26 +85,10 @@ jobs:
             version: 22.04
             codename: jammy
             llvm_version: 15
-          - base_image: ubuntu
-            version: 20.04
-            codename: focal
-            llvm_version: 12
-          - base_image: ubuntu
-            version: 18.04
-            codename: bionic
-            llvm_version: 10
           - base_image: debian
             version: 12
             codename: bookworm
             llvm_version: 15
-          - base_image: debian
-            version: 11
-            codename: bullseye
-            llvm_version: 13
-          - base_image: debian
-            version: 10
-            codename: buster
-            llvm_version: 13
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -168,13 +152,7 @@ jobs:
       matrix:
         include:
           - base_image: fedora
-            base_image_tag: 36
-          - base_image: fedora
-            base_image_tag: 37
-            llvm_version:
-          - base_image: fedora
             base_image_tag: 38
-            llvm_version:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
