@@ -31,14 +31,14 @@ ARG pkg_revision=1
 RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
-  --depends gcc --depends libpcre2-dev --depends libpcre3-dev --depends pkg-config --depends libevent-dev \
+  --depends gcc --depends libpcre2-dev --depends pkg-config --depends libevent-dev \
   --deb-recommends libssl-dev --deb-recommends libz-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev --deb-recommends git \
   --license "Apache 2.0" --chdir pkg .
 RUN fpm -s dir -t rpm -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
-  --depends gcc --depends pcre-devel --depends pcre2-devel --depends pkgconfig --depends libevent-devel \
+  --depends gcc --depends pcre2-devel --depends pkgconfig --depends libevent-devel \
   --depends gmp-devel --depends openssl-devel --depends libxml2-devel \
   --depends libyaml-devel --depends zlib-devel \
   --license "ASL 2.0" --chdir pkg .

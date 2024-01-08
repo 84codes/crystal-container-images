@@ -16,21 +16,21 @@ ARG crystal_version=1.9.1
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" | tail -1 > .build/crystal.sh && \
+  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /usr/src/shards
 ARG shards_version=0.17.2
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
-  make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl -Duse_pcre2" | tail -1 > bin/shards.sh
+  make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
 ARG llvm_version=16
 RUN apk add --update --no-cache \
     llvm${llvm_version}-dev llvm${llvm_version}-static \
-    zstd-static zlib-static yaml-static libxml2-static pcre-dev pcre2-dev libevent-static \
+    zstd-static zlib-static yaml-static libxml2-static pcre2-dev libevent-static \
     libffi-dev git g++ make automake libtool autoconf curl
 # Build libgc
 WORKDIR /usr/src/libc
@@ -55,7 +55,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 # start from a clean image
 FROM alpine:$alpine_version
 # add dependencies commonly required for building crystal applications
-RUN apk add --update --no-cache musl-dev gcc pcre-dev pcre2-dev libevent-dev libevent-static openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev libxml2-static gmp-dev
+RUN apk add --update --no-cache musl-dev gcc pcre2-dev libevent-dev libevent-static openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev libxml2-static gmp-dev
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /usr/src/crystal/*.md /usr/share/doc/crystal/
 COPY --from=builder /usr/src/crystal/man/crystal.1.gz /usr/share/man/man1/

@@ -26,7 +26,7 @@ ARG crystal_version
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" \
+  make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu PREFIX=/usr FLAGS="--no-debug" \
   CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib/crystal | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
@@ -34,7 +34,7 @@ WORKDIR /tmp/shards
 ARG shards_version=0.17.3
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
-  make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu -Duse_pcre2" | tail -1 > bin/shards.sh
+  make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM $base_image:$codename AS target-builder
@@ -89,7 +89,7 @@ RUN fpm -s dir -t deb -n crystal -v $(cat pkg/usr/share/crystal/src/VERSION) --i
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pkg-config --depends libevent-dev \
-  --depends libpcre2-dev --depends libpcre3-dev \
+  --depends libpcre2-dev \
   --depends llvm-$llvm_version --depends libz-dev --depends libffi-dev \
   --deb-recommends libssl-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev \
