@@ -24,7 +24,7 @@ COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz /usr/share/man/man5/
 # Cross compile for target architecture
 ARG TARGETARCH
 # Build crystal
-WORKDIR /tmp/crystal
+WORKDIR /usr/src/crystal
 ARG crystal_version
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
@@ -33,7 +33,7 @@ RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github
     PREFIX=/usr FLAGS="--no-debug -Duse_pcre2" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh && \
   rm src/llvm/ext/llvm_ext.o
 # Build shards
-WORKDIR /tmp/shards
+WORKDIR /usr/src/shards
 ARG shards_version=0.17.2
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
@@ -49,23 +49,23 @@ RUN dnf install -y --nodocs --repo=fedora,updates \
         openssl-devel zlib-devel gmp-devel autoconf automake libtool && \
     dnf clean all
 # build libgc
-WORKDIR /tmp/libgc
+WORKDIR /usr/src/libgc
 ARG gc_version=8.2.2
 RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
   ./autogen.sh && \
-  ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
-  make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
+  ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr --disable-dependency-tracking && \
+  make -j$(nproc) CFLAGS="-DNO_EXECUTE_PERMISSION -pipe -fPIE -O3" && \
   make install
 # Link crystal
-WORKDIR /tmp/crystal
-COPY --from=builder /tmp/crystal/Makefile .
-COPY --from=builder /tmp/crystal/src/llvm/ext src/llvm/ext
-COPY --from=builder /tmp/crystal/.build .build
+WORKDIR /usr/src/crystal
+COPY --from=builder /usr/src/crystal/Makefile .
+COPY --from=builder /usr/src/crystal/src/llvm/ext src/llvm/ext
+COPY --from=builder /usr/src/crystal/.build .build
 RUN make llvm_ext
 RUN sh -ex .build/crystal.sh && strip .build/crystal
 # Link shards
-WORKDIR /tmp/shards
-COPY --from=builder /tmp/shards/bin bin
+WORKDIR /usr/src/shards
+COPY --from=builder /usr/src/shards/bin bin
 RUN sh -ex bin/shards.sh && strip bin/shards
 
 # build rpm package
@@ -75,13 +75,13 @@ RUN dnf install -y --nodocs --repo=fedora,updates \
 # build distribution packages
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stage
-COPY --from=builder /tmp/crystal/*.md pkg/usr/share/doc/crystal/
-COPY --from=builder /tmp/crystal/man/crystal.1.gz pkg/usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shards.1.gz pkg/usr/share/man/man1/
-COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
-COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
-COPY --from=target-builder /tmp/crystal/.build/crystal pkg/usr/bin/
-COPY --from=target-builder /tmp/shards/bin/shards pkg/usr/bin/
+COPY --from=builder /usr/src/crystal/*.md pkg/usr/share/doc/crystal/
+COPY --from=builder /usr/src/crystal/man/crystal.1.gz pkg/usr/share/man/man1/
+COPY --from=builder /usr/src/shards/man/shards.1.gz pkg/usr/share/man/man1/
+COPY --from=builder /usr/src/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
+COPY --from=builder /usr/src/crystal/src pkg/usr/share/crystal/src
+COPY --from=target-builder /usr/src/crystal/.build/crystal pkg/usr/bin/
+COPY --from=target-builder /usr/src/shards/bin/shards pkg/usr/bin/
 COPY --from=target-builder /usr/lib64/libgc.a pkg/usr/lib64/crystal/
 ARG llvm_version
 ARG pkg_revision=1
