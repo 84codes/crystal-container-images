@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /usr/src/crystal
-ARG crystal_version=1.9.1
+ARG crystal_version=1.11.0
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
@@ -20,7 +20,7 @@ RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /usr/src/shards
-ARG shards_version=0.17.2
+ARG shards_version=0.17.4
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh

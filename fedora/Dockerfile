@@ -1,6 +1,6 @@
 ARG base_image=fedora
-ARG base_image_tag=38
-ARG crystal_version=1.9.1
+ARG base_image_tag=39
+ARG crystal_version=1.11.0
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -34,7 +34,7 @@ RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github
   rm src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /usr/src/shards
-ARG shards_version=0.17.2
+ARG shards_version=0.17.4
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
@@ -50,7 +50,7 @@ RUN dnf install -y --nodocs --repo=fedora,updates \
     dnf clean all
 # build libgc
 WORKDIR /usr/src/libgc
-ARG gc_version=8.2.2
+ARG gc_version=8.2.4
 RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
   ./autogen.sh && \
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr --disable-dependency-tracking && \
