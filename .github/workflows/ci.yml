@@ -183,10 +183,6 @@ jobs:
             version: 20.04
             codename: focal
             llvm_version: 12
-          - base_image: ubuntu
-            version: 18.04
-            codename: bionic
-            llvm_version: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v3
