@@ -82,9 +82,9 @@ jobs:
       matrix:
         include:
           - base_image: ubuntu
-            version: 22.04
-            codename: jammy
-            llvm_version: 15
+            version: 24.04
+            codename: noble
+            llvm_version: 18
           - base_image: debian
             version: 12
             codename: bookworm
@@ -152,7 +152,7 @@ jobs:
       matrix:
         include:
           - base_image: fedora
-            base_image_tag: 38
+            base_image_tag: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v3
