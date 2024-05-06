@@ -92,6 +92,10 @@ jobs:
       matrix:
         include:
           - base_image: ubuntu
+            version: 24.04
+            codename: noble
+            llvm_version: 18
+          - base_image: ubuntu
             version: 22.04
             codename: jammy
             llvm_version: 15
