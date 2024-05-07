@@ -31,7 +31,7 @@ RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github
   mkdir .build && \
   make crystal release=1 interpreter=1 target=$TARGETARCH-unknown-linux-gnu \
     PREFIX=/usr FLAGS="--no-debug" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh && \
-  rm src/llvm/ext/llvm_ext.o
+  rm -f src/llvm/ext/llvm_ext.o
 # Build shards
 WORKDIR /usr/src/shards
 ARG shards_version=0.17.4
