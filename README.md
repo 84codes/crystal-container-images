@@ -9,7 +9,7 @@ The container images are published at https://hub.docker.com/r/84codes/crystal a
 Use these images when you want to build your Crystal app, (pro tip: always use a multi stage approach).
 
 ```Dockerfile
-FROM 84codes/crystal:1.4.1-ubuntu-22.04 AS builder
+FROM 84codes/crystal:latest-ubuntu-22.04 AS builder
 WORKDIR /usr/src/app
 # Copying and install dependencies
 COPY shard.yml shard.lock .
@@ -35,7 +35,7 @@ Smallest images are achieved with static compiled binaries added to a scratch im
 
 ```Dockerfile
 # Compile in a build stage
-FROM 84codes/crystal:1.4.1-alpine-latest as builder
+FROM 84codes/crystal:latest-alpine as builder
 WORKDIR /tmp
 # Copying and install dependencies
 COPY shard.yml shard.lock ./
@@ -59,19 +59,21 @@ ENTRYPOINT ["/myapp"]
 
 ## Supported OSes and versions
 
+We keep up with new releases of Alpine, Ubuntu, Debian and Fedora.
+
 - Alpine latest
 - Ubuntu 20.04
 - Ubuntu 22.04
-- Debian Buster
-- Debian Bullseye
-- Fedora 35
-- Fedora 36
+- Ubuntu 24.04
+- Debian 10
+- Debian 11
+- Debian 12
+- Fedora 39
+- Fedora 40
 
 ## Supported Crystal version(s)
 
-More versions are easily added, but currently images are build for these Crystal versions:
-
-- 1.4.1
+We keep up with the releases of offical crystal version releases.
 
 ## DEB/RPM packages
 
