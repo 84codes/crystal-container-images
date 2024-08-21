@@ -1,7 +1,7 @@
 ARG alpine_version=latest
 
 FROM --platform=$BUILDPLATFORM alpine:$alpine_version AS builder
-ARG llvm_version=16
+ARG llvm_version=18
 # add dependencies required for building crystal from source
 RUN apk add --update --no-cache \
     crystal shards \
@@ -12,29 +12,28 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /usr/src/crystal
-ARG crystal_version=1.11.0
+ARG crystal_version=1.13.0
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
-  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh && \
-  rm src/llvm/ext/llvm_ext.o
+  make crystal static=1 release=1 target=$TARGETARCH-alpine-linux-musl PREFIX=/usr FLAGS="--no-debug" | tail -1 > .build/crystal.sh
 # Build shards
 WORKDIR /usr/src/shards
-ARG shards_version=0.17.4
+ARG shards_version=0.18.0
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards static=1 release=1 FLAGS="--no-debug --cross-compile --target=$TARGETARCH-alpine-linux-musl" | tail -1 > bin/shards.sh
 
 # link on target platform
 FROM alpine:$alpine_version AS target-builder
-ARG llvm_version=16
+ARG llvm_version=18
 RUN apk add --update --no-cache \
     llvm${llvm_version}-dev llvm${llvm_version}-static \
     zstd-static zlib-static yaml-static libxml2-static pcre2-dev libevent-static \
     libffi-dev git g++ make automake libtool autoconf curl
 # Build libgc
 WORKDIR /usr/src/libc
-ARG gc_version=8.2.4
+ARG gc_version=8.2.6
 RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
   ./autogen.sh && \
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
@@ -45,7 +44,6 @@ WORKDIR /usr/src/crystal
 COPY --from=builder /usr/src/crystal/Makefile .
 COPY --from=builder /usr/src/crystal/src/llvm/ext src/llvm/ext
 COPY --from=builder /usr/src/crystal/.build .build
-RUN make llvm_ext
 RUN sh -ex .build/crystal.sh && strip .build/crystal
 # Link shards
 WORKDIR /usr/src/shards
