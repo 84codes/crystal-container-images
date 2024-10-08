@@ -8,6 +8,8 @@ on:
     paths-ignore:
       - README.md
       - .github/workflows/master.yml
+  schedule:
+    - cron: '45 4 * * *'
 
 env:
   crystal_version: 1.13.3
