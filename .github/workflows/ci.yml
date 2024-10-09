@@ -10,7 +10,7 @@ on:
       - .github/workflows/master.yml
 
 env:
-  crystal_version: 1.13.3
+  crystal_version: 1.14.0
   shards_version: 0.18.0
   gc_version: 8.2.6
 
