@@ -75,7 +75,7 @@ jobs:
             pkg_revision=${{ github.run_number }}
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-static-pkgs
           path: pkgs
@@ -165,7 +165,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
           path: pkgs
@@ -241,7 +241,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
           path: pkgs
@@ -312,7 +312,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
@@ -381,7 +381,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-centos-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
