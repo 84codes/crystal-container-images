@@ -31,7 +31,7 @@ jobs:
             llvm_version: 18
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -63,7 +63,7 @@ jobs:
     needs: alpine
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: depot/setup-action@v1
       - uses: depot/build-push-action@v1
         with:
@@ -75,7 +75,7 @@ jobs:
             pkg_revision=${{ github.run_number }}
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-static-pkgs
           path: pkgs
@@ -115,7 +115,7 @@ jobs:
             llvm_version: 13
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -165,7 +165,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
           path: pkgs
@@ -191,7 +191,7 @@ jobs:
             llvm_version: 12
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -241,7 +241,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.version }}-pkgs
           path: pkgs
@@ -268,7 +268,7 @@ jobs:
             base_image_tag: 40
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -312,7 +312,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-${{ matrix.base_image }}-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
@@ -335,7 +335,7 @@ jobs:
             el_version: 9
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -381,7 +381,7 @@ jobs:
           target: pkgs
           outputs: pkgs
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: crystal-centos-${{ matrix.base_image_tag }}-pkgs
           path: pkgs
