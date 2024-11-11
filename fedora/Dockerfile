@@ -71,7 +71,11 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 # build rpm package
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS pkg-builder
 RUN dnf install -y --nodocs --repo=fedora,updates \
-    ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
+    git ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
+# patch fpm, fedora 41 bug fix: https://github.com/jordansissel/fpm/pull/2082
+WORKDIR /usr/local/share/gems/gems/fpm-1.15.1
+ADD https://github.com/jordansissel/fpm/pull/2082.patch .
+RUN git apply 2082.patch
 # build distribution packages
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stage
@@ -87,6 +91,7 @@ ARG llvm_version
 ARG pkg_revision=1
 ARG TARGETARCH
 RUN fpm -s dir -t rpm -n crystal -v $(sed 's/-/~/' pkg/usr/share/crystal/src/VERSION) --iteration ${pkg_revision} -a ${TARGETARCH} \
+  --debug \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pkgconfig --depends libevent-devel \
