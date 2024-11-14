@@ -62,6 +62,7 @@ jobs:
     name: Debian/RPM static packages
     needs: alpine
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     steps:
       - uses: actions/checkout@v4
       - uses: depot/setup-action@v1
@@ -89,6 +90,7 @@ jobs:
   debian:
     name: Debian
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     strategy:
       fail-fast: false
       matrix:
@@ -181,6 +183,7 @@ jobs:
     name: Debian (static)
     runs-on: ubuntu-latest
     needs: alpine
+    if: github.event_name != 'schedule'
     strategy:
       fail-fast: false
       matrix:
@@ -256,6 +259,7 @@ jobs:
   fedora:
     name: Fedora
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     strategy:
       fail-fast: false
       matrix:
@@ -328,6 +332,7 @@ jobs:
   centos:
     name: CentOS Stream
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
     strategy:
       fail-fast: false
       matrix:
