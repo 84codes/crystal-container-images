@@ -90,7 +90,7 @@ RUN fpm -s dir -t deb -n crystal -v $(cat pkg/usr/share/crystal/src/VERSION) --i
   --description "a general-purpose, object-oriented programming language" \
   --depends gcc --depends pkg-config --depends libevent-dev \
   --depends libpcre2-dev \
-  --depends llvm-$llvm_version --depends libz-dev --depends libffi-dev \
+  --depends libllvm$llvm_version --depends libz-dev --depends libffi-dev \
   --deb-recommends libssl-dev --deb-recommends libxml2-dev \
   --deb-recommends libgmp-dev --deb-recommends libyaml-dev \
   --deb-recommends git \
