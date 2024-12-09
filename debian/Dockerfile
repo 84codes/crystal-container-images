@@ -47,7 +47,7 @@ RUN apt-get update && \
     autoconf automake libtool llvm-$llvm_version-dev libffi-dev
 # build libgc
 WORKDIR /tmp/libgc
-ARG gc_version=8.2.4
+ARG gc_version=8.2.8
 RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
   ./autogen.sh && \
   ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \

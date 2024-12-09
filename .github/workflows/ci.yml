@@ -14,7 +14,7 @@ on:
 env:
   crystal_version: 1.14.0
   shards_version: 0.18.0
-  gc_version: 8.2.6
+  gc_version: 8.2.8
 
 permissions:
   contents: read
