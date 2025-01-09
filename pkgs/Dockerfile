@@ -1,5 +1,5 @@
 # Copy the statically compiled compiler from the alpine image
-ARG crystal_version=1.7.3
+ARG crystal_version=1.14.1
 FROM 84codes/crystal:${crystal_version}-alpine-latest AS alpine
 
 # build deb and rpm packages
@@ -26,7 +26,7 @@ COPY --from=alpine /usr/share/man/man1/crystal.1.gz pkg/usr/share/man/man1/
 COPY --from=alpine /usr/share/man/man1/shards.1.gz pkg/usr/share/man/man1/
 COPY --from=alpine /usr/share/man/man5/shard.yml.5.gz pkg/usr/share/man/man5/
 RUN mkdir -p pkg/usr/lib && cp /usr/lib/libgc.a pkg/usr/lib/
-ARG crystal_version=1.7.3
+ARG crystal_version=1.14.1
 ARG pkg_revision=1
 RUN fpm -s dir -t deb -n crystal -v ${crystal_version} --iteration ${pkg_revision} -a native \
   --url https://crystal-lang.org --maintainer "84codes <contact@84codes.com>" \

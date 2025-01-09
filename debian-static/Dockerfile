@@ -1,6 +1,6 @@
 ARG base_image=ubuntu
 ARG codename=focal
-ARG crystal_version=1.9.1
+ARG crystal_version=1.14.1
 
 # Copy the statically compiled compiler from this image
 FROM 84codes/crystal:${crystal_version}-alpine AS alpine

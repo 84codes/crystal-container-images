@@ -1,6 +1,6 @@
 ARG base_image=fedora
 ARG base_image_tag=40
-ARG crystal_version=1.11.1
+ARG crystal_version=1.14.1
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
