@@ -72,10 +72,7 @@ RUN sh -ex bin/shards.sh && strip bin/shards
 FROM --platform=$BUILDPLATFORM $base_image:$base_image_tag AS pkg-builder
 RUN dnf install -y --nodocs --repo=fedora,updates \
     git ruby ruby-devel make gcc rpm-build && gem install --no-document fpm
-# patch fpm, fedora 41 bug fix: https://github.com/jordansissel/fpm/pull/2082
-WORKDIR /usr/local/share/gems/gems/fpm-1.15.1
-ADD https://github.com/jordansissel/fpm/pull/2082.patch .
-RUN git apply 2082.patch
+
 # build distribution packages
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stage
