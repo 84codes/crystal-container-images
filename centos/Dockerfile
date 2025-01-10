@@ -1,6 +1,6 @@
 ARG base_image=quay.io/centos/centos
 ARG base_image_tag=stream9
-ARG crystal_version=1.14.1
+ARG crystal_version=1.15.0
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine

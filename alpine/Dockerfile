@@ -12,7 +12,7 @@ RUN apk add --update --no-cache \
 ARG TARGETARCH
 # Build crystal
 WORKDIR /usr/src/crystal
-ARG crystal_version=1.14.1
+ARG crystal_version=1.15.0
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
   gzip -9 man/crystal.1 && \
   mkdir .build && \
