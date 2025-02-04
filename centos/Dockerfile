@@ -1,6 +1,6 @@
 ARG base_image=quay.io/centos/centos
 ARG base_image_tag=stream9
-ARG crystal_version=1.15.0
+ARG crystal_version=1.15.1
 
 # Copy the statically compiled compiler from this image
 FROM --platform=$BUILDPLATFORM 84codes/crystal:latest-alpine AS alpine
@@ -33,7 +33,7 @@ RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github
     PREFIX=/usr FLAGS="--no-debug" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh
 # Build shards
 WORKDIR /tmp/shards
-ARG shards_version=0.18.0
+ARG shards_version=0.19.1
 RUN git clone --depth=1 --single-branch --branch=v${shards_version} https://github.com/crystal-lang/shards.git . && \
   gzip -9 man/shards.1 man/shard.yml.5 && \
   make bin/shards FLAGS="--release --no-debug --cross-compile --target=$TARGETARCH-unknown-linux-gnu" | tail -1 > bin/shards.sh
