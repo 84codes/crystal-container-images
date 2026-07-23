@@ -24,7 +24,7 @@ RUN rpmdev-setuptree
 WORKDIR /root/rpmbuild
 COPY crystal.spec /root/rpmbuild/SPECS/
 
-ARG crystal_version=1.20.0
+ARG crystal_version=1.21.0
 ARG shards_version=0.20.0
 ARG pkg_revision=1
 

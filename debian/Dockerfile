@@ -29,7 +29,7 @@ RUN tar zxf bdwgc.tar.gz && \
     make install
 
 # Build crystal
-ARG crystal_version=1.20.0
+ARG crystal_version=1.21.0
 ARG crystal_src_url=https://github.com/crystal-lang/crystal/archive/${crystal_version}.tar.gz
 ADD ${crystal_src_url} crystal.tar.gz
 RUN tar zxf crystal.tar.gz && \
