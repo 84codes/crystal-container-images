@@ -263,11 +263,11 @@ jobs:
       matrix:
         include:
           - base_image: fedora
-            base_image_tag: 42
-          - base_image: fedora
             base_image_tag: 43
           - base_image: fedora
             base_image_tag: 44
+          - base_image: fedora
+            base_image_tag: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
