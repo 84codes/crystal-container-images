@@ -10,6 +10,7 @@ Packager:       84codes <contact@84codes.com>
 
 BuildRequires:  git gcc gcc-c++ make gc-devel llvm-devel
 BuildRequires:  pcre2-devel libyaml-devel libffi-devel
+BuildRequires:  asciidoctor
 
 Requires:       gcc pkgconfig gc-devel
 Requires:       pcre2-devel openssl-devel zlib-devel

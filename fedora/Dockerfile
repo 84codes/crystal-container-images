@@ -9,7 +9,7 @@ FROM $base_image:$base_image_tag AS builder
 RUN dnf install -y --nodocs --repo=fedora,updates \
         git gcc gcc-c++ make gc-devel llvm-devel \
         pcre2-devel libyaml-devel libffi-devel \
-        rpm-build rpmdevtools && \
+        rpm-build rpmdevtools asciidoctor && \
     dnf clean all
 
 # Use static compiler to compile crystal

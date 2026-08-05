@@ -11,7 +11,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y git gcc g++ pkg-config make \
     libpcre2-dev libyaml-dev zlib1g-dev llvm-$llvm_version-dev \
-    autoconf automake libtool libffi-dev devscripts debhelper dh-make
+    autoconf automake libtool libffi-dev devscripts debhelper dh-make asciidoctor
 
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
