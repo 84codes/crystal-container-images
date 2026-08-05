@@ -58,7 +58,7 @@ make install DESTDIR=%{buildroot} PREFIX=%{_prefix}
 %{_datadir}/zsh/site-functions/_crystal
 %{_datadir}/bash-completion/completions/crystal
 %{_datadir}/fish/vendor_completions.d/crystal.fish
-%{_mandir}/man1/crystal.1.gz
+%{_mandir}/man1/crystal*.1.gz
 %{_mandir}/man1/shards.1.gz
 %{_mandir}/man5/shard.yml.5.gz
 
