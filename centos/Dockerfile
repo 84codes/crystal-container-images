@@ -12,10 +12,20 @@ RUN dnf install -y --nodocs --enablerepo=crb \
         git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel \
-        zlib-devel gc-devel ruby && \
+        zlib-devel autoconf automake libtool ruby && \
     dnf clean all
 # asciidoctor generates the man pages, it's not packaged in EL9 (only in EPEL)
 RUN gem install --no-document asciidoctor
+# EL9 only ships libgc 8.0.4, but the stdlib needs GC_get_my_stackbottom from
+# 8.2, so build it from source like the Debian image does. Don't install
+# gc-devel here: the linker would prefer its libgc.so over this libgc.a.
+WORKDIR /tmp/libgc
+ARG gc_version=8.2.8
+RUN git clone --depth=1 --single-branch --branch=v${gc_version} https://github.com/ivmai/bdwgc.git . && \
+  ./autogen.sh && \
+  ./configure --disable-debug --disable-shared --enable-large-config --prefix=/usr && \
+  make -j$(nproc) CFLAGS="-DNO_GETCONTEXT -pipe -fPIE -O3" && \
+  make install
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
