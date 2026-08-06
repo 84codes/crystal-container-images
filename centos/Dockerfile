@@ -12,8 +12,10 @@ RUN dnf install -y --nodocs --enablerepo=crb \
         git gcc gcc-c++ make libevent-devel \
         llvm${llvm_version}-devel \
         pcre2-devel libxml2-devel libyaml-devel \
-        zlib-devel gc-devel && \
+        zlib-devel gc-devel ruby && \
     dnf clean all
+# asciidoctor generates the man pages, it's not packaged in EL9 (only in EPEL)
+RUN gem install --no-document asciidoctor
 COPY --from=alpine /usr/bin/shards /usr/bin/
 COPY --from=alpine /usr/bin/crystal /usr/bin/
 COPY --from=alpine /usr/share/crystal /usr/share/crystal
@@ -26,7 +28,8 @@ ARG TARGETARCH
 WORKDIR /tmp/crystal
 ARG crystal_version
 RUN git clone --depth=1 --single-branch --branch=$crystal_version https://github.com/crystal-lang/crystal.git . && \
-  gzip -9 man/crystal.1 && \
+  make man/ && \
+  gzip -9 man/*.1 && \
   mkdir .build && \
   make crystal interpreter=1 release=1 target=$TARGETARCH-unknown-linux-gnu \
     PREFIX=/usr FLAGS="--no-debug" CRYSTAL_CONFIG_LIBRARY_PATH=/usr/lib64/crystal | tail -1 > .build/crystal.sh
@@ -73,7 +76,7 @@ RUN dnf install -y --nodocs \
 # build distribution packages
 WORKDIR /tmp/pkg
 # copy the binaries + stdlib + libgc from the build stage
-COPY --from=builder /tmp/crystal/man/crystal.1.gz pkg/usr/share/man/man1/
+COPY --from=builder /tmp/crystal/man/*.1.gz pkg/usr/share/man/man1/
 COPY --from=builder /tmp/shards/man/shards.1.gz pkg/usr/share/man/man1/
 COPY --from=builder /tmp/shards/man/shard.yml.5.gz pkg/usr/share/man/man5/
 COPY --from=builder /tmp/crystal/src pkg/usr/share/crystal/src
