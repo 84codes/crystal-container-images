@@ -1,4 +1,4 @@
-ARG alpine_version=latest
+ARG alpine_version=edge
 
 FROM alpine:$alpine_version AS builder
 ARG llvm_version=20
@@ -44,7 +44,7 @@ RUN tar zxf shards.tar.gz && \
 # start from a clean image
 FROM alpine:$alpine_version
 # add dependencies commonly required for building crystal applications
-RUN apk add --update --no-cache musl-dev gcc pcre2-dev openssl-dev openssl-libs-static libxml2-dev zlib-dev zlib-static git make yaml-dev libxml2-static gmp-dev xz-static yaml-static pcre2-static
+RUN apk add --update --no-cache musl-dev gcc pcre2-dev libressl-dev libressl-static libxml2-dev zlib-dev zlib-static git make yaml-dev libxml2-static gmp-dev xz-static yaml-static pcre2-static
 # copy the binaries + stdlib + libgc from the build stage
 COPY --from=builder /usr/share/man/man1/crystal.1.gz /usr/share/man/man1/
 COPY --from=builder /usr/share/man/man1/shards.1.gz /usr/share/man/man1/
